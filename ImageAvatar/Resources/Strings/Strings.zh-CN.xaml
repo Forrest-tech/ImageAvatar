@@ -3,23 +3,21 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:sys="clr-namespace:System;assembly=mscorlib">
 
-    <!-- App -->
     <sys:String x:Key="AppTitle">图像头像</sys:String>
-
-    <!-- Navigation -->
     <sys:String x:Key="NavDashboard">仪表盘</sys:String>
     <sys:String x:Key="NavSettings">设置</sys:String>
 
-    <!-- Buttons -->
     <sys:String x:Key="BtnRefresh">刷新</sys:String>
     <sys:String x:Key="BtnWatch">监控</sys:String>
     <sys:String x:Key="BtnApply">应用</sys:String>
     <sys:String x:Key="BtnOpenFolder">打开文件夹</sys:String>
+    <sys:String x:Key="BtnBrowse">浏览…</sys:String>
+    <sys:String x:Key="BtnLoadModel">加载模型</sys:String>
 
-    <!-- Dashboard -->
     <sys:String x:Key="LabelRootPath">根目录</sys:String>
+    <sys:String x:Key="LabelExtracting">正在提取背景…</sys:String>
+    <sys:String x:Key="LabelModelLoaded">模型已就绪</sys:String>
 
-    <!-- Pipeline Folder Labels -->
     <sys:String x:Key="FolderExtractQueue">提图队列</sys:String>
     <sys:String x:Key="FolderExtractDone">提图完成</sys:String>
     <sys:String x:Key="FolderRefineQueue">抠图队列</sys:String>
@@ -27,7 +25,9 @@
     <sys:String x:Key="FolderFinalizeQueue">成品队列</sys:String>
     <sys:String x:Key="FolderFinalizeDone">成品完成</sys:String>
 
-    <!-- Settings -->
+    <sys:String x:Key="SettingsModelHeader">AI 模型</sys:String>
+    <sys:String x:Key="SettingsModelDesc">选择 U-2-Net ONNX 模型文件（u2net.onnx）用于背景移除。</sys:String>
+    <sys:String x:Key="SettingsModelHint">下载地址：github.com/danielgatis/rembg → models/u2net.onnx</sys:String>
     <sys:String x:Key="SettingsLanguageHeader">语言</sys:String>
     <sys:String x:Key="SettingsLanguageDesc">选择应用程序的显示语言。</sys:String>
     <sys:String x:Key="SettingsThemeHeader">主题</sys:String>

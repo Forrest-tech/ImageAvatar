@@ -17,12 +17,19 @@ public partial class App : Application
 
     public App()
     {
+        var appSettings = AppSettingsService.Load();
+
         _host = Host.CreateDefaultBuilder()
             .ConfigureServices((_, services) =>
             {
+                // Settings (singleton instance loaded from disk)
+                services.AddSingleton(appSettings);
+
                 // Core services
                 services.AddSingleton<ILocalizationService, LocalizationService>();
                 services.AddSingleton<IStorageService, StorageService>();
+                services.AddSingleton<IImageExtractionService, ImageExtractionService>();
+                services.AddSingleton<IPipelineCoordinatorService, PipelineCoordinatorService>();
 
                 // ViewModels
                 services.AddSingleton<MainWindowViewModel>();
@@ -41,9 +48,17 @@ public partial class App : Application
     {
         await _host.StartAsync();
 
-        // Initialize default language (zh-CN)
         var localization = _host.Services.GetRequiredService<ILocalizationService>();
         localization.SetLanguage("zh-CN");
+
+        // Auto-load model if path exists
+        var settings   = _host.Services.GetRequiredService<AppSettingsService>();
+        var extraction = _host.Services.GetRequiredService<IImageExtractionService>();
+        if (System.IO.File.Exists(settings.ModelPath))
+        {
+            try { await extraction.LoadModelAsync(settings.ModelPath); }
+            catch { /* model file may be corrupt – ignore, user can reload in Settings */ }
+        }
 
         var mainWindow = _host.Services.GetRequiredService<MainWindow>();
         mainWindow.Show();
@@ -53,6 +68,7 @@ public partial class App : Application
 
     protected override async void OnExit(ExitEventArgs e)
     {
+        _host.Services.GetRequiredService<IPipelineCoordinatorService>().Stop();
         await _host.StopAsync();
         _host.Dispose();
         base.OnExit(e);

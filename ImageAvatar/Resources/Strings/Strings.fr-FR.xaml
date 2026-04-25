@@ -3,23 +3,21 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:sys="clr-namespace:System;assembly=mscorlib">
 
-    <!-- App -->
     <sys:String x:Key="AppTitle">ImageAvatar</sys:String>
-
-    <!-- Navigation -->
     <sys:String x:Key="NavDashboard">Tableau de bord</sys:String>
     <sys:String x:Key="NavSettings">Paramètres</sys:String>
 
-    <!-- Buttons -->
     <sys:String x:Key="BtnRefresh">Actualiser</sys:String>
     <sys:String x:Key="BtnWatch">Surveiller</sys:String>
     <sys:String x:Key="BtnApply">Appliquer</sys:String>
     <sys:String x:Key="BtnOpenFolder">Ouvrir le dossier</sys:String>
+    <sys:String x:Key="BtnBrowse">Parcourir…</sys:String>
+    <sys:String x:Key="BtnLoadModel">Charger le modèle</sys:String>
 
-    <!-- Dashboard -->
     <sys:String x:Key="LabelRootPath">Dossier racine</sys:String>
+    <sys:String x:Key="LabelExtracting">Extraction en cours…</sys:String>
+    <sys:String x:Key="LabelModelLoaded">Modèle prêt</sys:String>
 
-    <!-- Pipeline Folder Labels -->
     <sys:String x:Key="FolderExtractQueue">File d'extraction</sys:String>
     <sys:String x:Key="FolderExtractDone">Extraction terminée</sys:String>
     <sys:String x:Key="FolderRefineQueue">File de détourage</sys:String>
@@ -27,7 +25,9 @@
     <sys:String x:Key="FolderFinalizeQueue">File de finalisation</sys:String>
     <sys:String x:Key="FolderFinalizeDone">Finalisation terminée</sys:String>
 
-    <!-- Settings -->
+    <sys:String x:Key="SettingsModelHeader">Modèle IA</sys:String>
+    <sys:String x:Key="SettingsModelDesc">Sélectionner le fichier modèle U-2-Net ONNX (u2net.onnx) pour la suppression de fond.</sys:String>
+    <sys:String x:Key="SettingsModelHint">Téléchargement : github.com/danielgatis/rembg → models/u2net.onnx</sys:String>
     <sys:String x:Key="SettingsLanguageHeader">Langue</sys:String>
     <sys:String x:Key="SettingsLanguageDesc">Sélectionner la langue d'affichage de l'application.</sys:String>
     <sys:String x:Key="SettingsThemeHeader">Thème</sys:String>

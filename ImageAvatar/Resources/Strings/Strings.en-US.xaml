@@ -3,23 +3,21 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:sys="clr-namespace:System;assembly=mscorlib">
 
-    <!-- App -->
     <sys:String x:Key="AppTitle">ImageAvatar</sys:String>
-
-    <!-- Navigation -->
     <sys:String x:Key="NavDashboard">Dashboard</sys:String>
     <sys:String x:Key="NavSettings">Settings</sys:String>
 
-    <!-- Buttons -->
     <sys:String x:Key="BtnRefresh">Refresh</sys:String>
     <sys:String x:Key="BtnWatch">Watch</sys:String>
     <sys:String x:Key="BtnApply">Apply</sys:String>
     <sys:String x:Key="BtnOpenFolder">Open Folder</sys:String>
+    <sys:String x:Key="BtnBrowse">Browse…</sys:String>
+    <sys:String x:Key="BtnLoadModel">Load Model</sys:String>
 
-    <!-- Dashboard -->
     <sys:String x:Key="LabelRootPath">Root Path</sys:String>
+    <sys:String x:Key="LabelExtracting">Extracting background…</sys:String>
+    <sys:String x:Key="LabelModelLoaded">Model Ready</sys:String>
 
-    <!-- Pipeline Folder Labels -->
     <sys:String x:Key="FolderExtractQueue">Extract Queue</sys:String>
     <sys:String x:Key="FolderExtractDone">Extract Done</sys:String>
     <sys:String x:Key="FolderRefineQueue">Refine Queue</sys:String>
@@ -27,7 +25,9 @@
     <sys:String x:Key="FolderFinalizeQueue">Finalize Queue</sys:String>
     <sys:String x:Key="FolderFinalizeDone">Finalize Done</sys:String>
 
-    <!-- Settings -->
+    <sys:String x:Key="SettingsModelHeader">AI Model</sys:String>
+    <sys:String x:Key="SettingsModelDesc">Select the U-2-Net ONNX model file (u2net.onnx) for background removal.</sys:String>
+    <sys:String x:Key="SettingsModelHint">Download from: github.com/danielgatis/rembg → models/u2net.onnx</sys:String>
     <sys:String x:Key="SettingsLanguageHeader">Language</sys:String>
     <sys:String x:Key="SettingsLanguageDesc">Select the display language for the application.</sys:String>
     <sys:String x:Key="SettingsThemeHeader">Theme</sys:String>

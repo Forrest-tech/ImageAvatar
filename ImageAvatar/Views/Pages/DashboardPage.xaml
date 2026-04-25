@@ -14,10 +14,12 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <!-- Page Header -->
+        <!-- ── Row 0: Page header ─────────────────────────────────────── -->
         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,16">
             <ui:TextBlock
                 Text="{DynamicResource NavDashboard}"
@@ -35,10 +37,22 @@
                 Command="{Binding ToggleWatchingCommand}"
                 Margin="8,0,0,0"
                 VerticalAlignment="Center" />
+            <!-- Model status badge -->
+            <Border
+                Background="{Binding IsModelLoaded, Converter={StaticResource BoolToBrush}}"
+                CornerRadius="4"
+                Padding="8,4"
+                Margin="16,0,0,0"
+                VerticalAlignment="Center">
+                <ui:TextBlock
+                    Text="{DynamicResource LabelModelLoaded}"
+                    Visibility="{Binding IsModelLoaded, Converter={StaticResource BoolToVis}}"
+                    FontSize="12" />
+            </Border>
         </StackPanel>
 
-        <!-- Root Path Configuration -->
-        <ui:Card Grid.Row="1" Margin="0,0,0,16">
+        <!-- ── Row 1: Root path ───────────────────────────────────────── -->
+        <ui:Card Grid.Row="1" Margin="0,0,0,12">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
@@ -65,8 +79,50 @@
             </Grid>
         </ui:Card>
 
-        <!-- Pipeline Folders Grid -->
-        <ItemsControl Grid.Row="2" ItemsSource="{Binding FolderItems}">
+        <!-- ── Row 2: Extraction progress (visible while processing) ──── -->
+        <ui:Card
+            Grid.Row="2"
+            Margin="0,0,0,12"
+            Visibility="{Binding IsExtracting, Converter={StaticResource BoolToVis}}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,6">
+                    <ui:SymbolIcon Symbol="ImageMultiple24" Margin="0,0,8,0" VerticalAlignment="Center" />
+                    <ui:TextBlock Text="{DynamicResource LabelExtracting}" FontTypography="BodyStrong" />
+                </StackPanel>
+                <ProgressBar
+                    Grid.Row="1"
+                    Value="{Binding ExtractionProgress}"
+                    Maximum="1.0"
+                    Height="6"
+                    Margin="0,0,0,4" />
+                <ui:TextBlock
+                    Grid.Row="2"
+                    Text="{Binding ExtractionStatus}"
+                    Opacity="0.65"
+                    FontSize="11" />
+            </Grid>
+        </ui:Card>
+
+        <!-- ── Row 3: Last result status (shown after completion) ─────── -->
+        <ui:Card
+            Grid.Row="3"
+            Margin="0,0,0,12"
+            Visibility="{Binding IsExtracting, Converter={StaticResource InverseBoolToVis}}">
+            <ui:TextBlock
+                Text="{Binding ExtractionStatus}"
+                Opacity="0.65"
+                FontSize="11"
+                Visibility="{Binding ExtractionStatus,
+                    Converter={StaticResource NotEmptyToVis}}" />
+        </ui:Card>
+
+        <!-- ── Row 4: Pipeline folder cards ──────────────────────────── -->
+        <ItemsControl Grid.Row="4" ItemsSource="{Binding FolderItems}">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
                     <UniformGrid Columns="3" />
@@ -83,7 +139,7 @@
                                 <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
 
-                            <!-- Stage color indicator + role icon -->
+                            <!-- Stage colour strip + role icon -->
                             <Grid Grid.Row="0" Margin="0,0,0,8">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*" />
@@ -91,16 +147,13 @@
                                 </Grid.ColumnDefinitions>
                                 <Border
                                     Grid.Column="0"
-                                    Height="4"
-                                    CornerRadius="2"
-                                    HorizontalAlignment="Left"
-                                    Width="40"
+                                    Height="4" CornerRadius="2"
+                                    HorizontalAlignment="Left" Width="40"
                                     Background="{Binding StageColor}" />
                                 <TextBlock
                                     Grid.Column="1"
                                     Text="{Binding RoleIcon}"
-                                    FontSize="18"
-                                    VerticalAlignment="Center" />
+                                    FontSize="18" VerticalAlignment="Center" />
                             </Grid>
 
                             <!-- Folder name -->
@@ -110,22 +163,20 @@
                                 FontTypography="BodyStrong"
                                 Margin="0,0,0,4" />
 
-                            <!-- File count -->
-                            <StackPanel Grid.Row="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,4,0,8">
+                            <!-- PNG count -->
+                            <StackPanel Grid.Row="2" Orientation="Horizontal"
+                                        VerticalAlignment="Center" Margin="0,4,0,8">
                                 <ui:TextBlock
                                     Text="{Binding FileCount}"
-                                    FontSize="32"
-                                    FontWeight="Bold"
+                                    FontSize="32" FontWeight="Bold"
                                     Foreground="{Binding StageColor}" />
                                 <ui:TextBlock
                                     Text=" PNG"
-                                    FontSize="14"
-                                    VerticalAlignment="Bottom"
-                                    Margin="4,0,0,4"
-                                    Opacity="0.6" />
+                                    FontSize="14" VerticalAlignment="Bottom"
+                                    Margin="4,0,0,4" Opacity="0.6" />
                             </StackPanel>
 
-                            <!-- Open folder button -->
+                            <!-- Open folder -->
                             <ui:Button
                                 Grid.Row="3"
                                 Content="{DynamicResource BtnOpenFolder}"

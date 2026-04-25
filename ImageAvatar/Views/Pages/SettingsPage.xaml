@@ -10,25 +10,87 @@
     d:DataContext="{d:DesignInstance Type=vm:SettingsViewModel}"
     Scrollable="True">
 
-    <StackPanel Margin="24,16,24,24" MaxWidth="600" HorizontalAlignment="Left">
+    <StackPanel Margin="24,16,24,24" MaxWidth="620" HorizontalAlignment="Left">
 
-        <!-- Page Header -->
         <ui:TextBlock
             Text="{DynamicResource NavSettings}"
             FontTypography="TitleLarge"
             Margin="0,0,0,24" />
 
-        <!-- Language Section -->
+        <!-- ── AI Model ──────────────────────────────────────────────── -->
+        <ui:CardExpander
+            Header="{DynamicResource SettingsModelHeader}"
+            Icon="{ui:SymbolIcon Symbol=BrainCircuit24}"
+            IsExpanded="True"
+            Margin="0,0,0,12">
+            <StackPanel Margin="0,8,0,0" Spacing="10">
+
+                <ui:TextBlock
+                    Text="{DynamicResource SettingsModelDesc}"
+                    Opacity="0.7" />
+
+                <!-- Model path row -->
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <ui:TextBox
+                        Grid.Column="0"
+                        Text="{Binding ModelPath, UpdateSourceTrigger=PropertyChanged}"
+                        PlaceholderText="%AppData%\ImageAvatar\models\u2net.onnx"
+                        VerticalAlignment="Center" />
+                    <ui:Button
+                        Grid.Column="1"
+                        Content="{DynamicResource BtnBrowse}"
+                        Command="{Binding BrowseModelCommand}"
+                        Appearance="Secondary"
+                        Margin="8,0,0,0"
+                        VerticalAlignment="Center" />
+                    <ui:Button
+                        Grid.Column="2"
+                        Content="{DynamicResource BtnLoadModel}"
+                        Command="{Binding LoadModelCommand}"
+                        Appearance="Primary"
+                        Margin="8,0,0,0"
+                        VerticalAlignment="Center" />
+                </Grid>
+
+                <!-- Status row -->
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <ui:SymbolIcon
+                        Symbol="Checkmark24"
+                        Foreground="#4CAF50"
+                        Visibility="{Binding IsModelLoaded, Converter={StaticResource BoolToVis}}" />
+                    <ui:SymbolIcon
+                        Symbol="ErrorCircle24"
+                        Foreground="#F44336"
+                        Visibility="{Binding IsModelLoaded,
+                            Converter={StaticResource InverseBoolToVis}}" />
+                    <ui:TextBlock Text="{Binding ModelStatus}" VerticalAlignment="Center" />
+                    <ui:ProgressRing
+                        IsIndeterminate="True"
+                        Width="16" Height="16"
+                        Visibility="{Binding IsLoadingModel, Converter={StaticResource BoolToVis}}" />
+                </StackPanel>
+
+                <!-- Download hint -->
+                <ui:TextBlock
+                    Text="{DynamicResource SettingsModelHint}"
+                    Opacity="0.5"
+                    FontSize="11" />
+            </StackPanel>
+        </ui:CardExpander>
+
+        <!-- ── Language ──────────────────────────────────────────────── -->
         <ui:CardExpander
             Header="{DynamicResource SettingsLanguageHeader}"
             Icon="{ui:SymbolIcon Symbol=LocalLanguage24}"
             IsExpanded="True"
             Margin="0,0,0,12">
-            <StackPanel Margin="0,8,0,0">
-                <ui:TextBlock
-                    Text="{DynamicResource SettingsLanguageDesc}"
-                    Opacity="0.7"
-                    Margin="0,0,0,12" />
+            <StackPanel Margin="0,8,0,0" Spacing="10">
+                <ui:TextBlock Text="{DynamicResource SettingsLanguageDesc}" Opacity="0.7" />
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
@@ -50,16 +112,13 @@
             </StackPanel>
         </ui:CardExpander>
 
-        <!-- Theme Section -->
+        <!-- ── Theme ─────────────────────────────────────────────────── -->
         <ui:CardExpander
             Header="{DynamicResource SettingsThemeHeader}"
             Icon="{ui:SymbolIcon Symbol=PaintBrush24}"
             IsExpanded="True">
-            <StackPanel Margin="0,8,0,0">
-                <ui:TextBlock
-                    Text="{DynamicResource SettingsThemeDesc}"
-                    Opacity="0.7"
-                    Margin="0,0,0,12" />
+            <StackPanel Margin="0,8,0,0" Spacing="10">
+                <ui:TextBlock Text="{DynamicResource SettingsThemeDesc}" Opacity="0.7" />
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
