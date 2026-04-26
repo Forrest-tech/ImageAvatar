@@ -32,18 +32,21 @@ public partial class App : Application
                 services.AddSingleton<IPipelineCoordinatorService, PipelineCoordinatorService>();
                 services.AddSingleton<IMockupService, MockupService>();
                 services.AddSingleton<IBatchMockupService, BatchMockupService>();
+                services.AddSingleton<IQcService, QcService>();
 
                 // ViewModels
                 services.AddSingleton<MainWindowViewModel>();
                 services.AddTransient<DashboardViewModel>();
                 services.AddTransient<SettingsViewModel>();
                 services.AddTransient<BatchProcessorViewModel>();
+                services.AddTransient<QcViewModel>();
 
                 // Views
                 services.AddSingleton<MainWindow>();
                 services.AddTransient<DashboardPage>();
                 services.AddTransient<SettingsPage>();
                 services.AddTransient<BatchPage>();
+                services.AddTransient<QcPage>();
             })
             .Build();
     }

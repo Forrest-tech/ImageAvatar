@@ -6,6 +6,7 @@
     <sys:String x:Key="AppTitle">圖像頭像</sys:String>
     <sys:String x:Key="NavDashboard">儀表板</sys:String>
     <sys:String x:Key="NavBatch">批量處理</sys:String>
+    <sys:String x:Key="NavQc">質檢審核</sys:String>
     <sys:String x:Key="NavSettings">設定</sys:String>
 
     <sys:String x:Key="BtnRefresh">重新整理</sys:String>
@@ -28,6 +29,23 @@
     <sys:String x:Key="LabelBatchCancelled">已取消</sys:String>
     <sys:String x:Key="LabelNoTemplates">所選目錄中未找到模板</sys:String>
     <sys:String x:Key="LabelBatchNoPatterns">50_成品队列 中未找到 PNG 檔案</sys:String>
+
+    <sys:String x:Key="BtnApprove">通過</sys:String>
+    <sys:String x:Key="BtnReject">拒絕</sys:String>
+    <sys:String x:Key="BtnGridMode">網格</sys:String>
+    <sys:String x:Key="BtnOverlayMode">疊加</sys:String>
+    <sys:String x:Key="BtnResetZoom">重置縮放</sys:String>
+    <sys:String x:Key="LabelOriginal">原始圖</sys:String>
+    <sys:String x:Key="LabelExtractedPng">提取PNG</sys:String>
+    <sys:String x:Key="LabelFinalMockup">最終效果</sys:String>
+    <sys:String x:Key="LabelOverlayOpacity">透明度</sys:String>
+    <sys:String x:Key="LabelQcPending">● 待審</sys:String>
+    <sys:String x:Key="LabelQcApproved">✓ 已通過</sys:String>
+    <sys:String x:Key="LabelQcRejected">✗ 已拒絕</sys:String>
+    <sys:String x:Key="LabelNoQcItems">51_成品完成 中暫無項目</sys:String>
+    <sys:String x:Key="LabelSelectItem">從列表中選擇項目進行審核</sys:String>
+    <sys:String x:Key="LabelProductionReady">→ 生產就緒</sys:String>
+    <sys:String x:Key="LabelRework">→ 返工</sys:String>
 
     <sys:String x:Key="FolderExtractQueue">提圖佇列</sys:String>
     <sys:String x:Key="FolderExtractDone">提圖完成</sys:String>

@@ -13,10 +13,11 @@
             </ResourceDictionary.MergedDictionaries>
 
             <!-- Converters available application-wide -->
-            <BooleanToVisibilityConverter                x:Key="BoolToVis" />
-            <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVis" />
-            <converters:NotEmptyToVisibilityConverter    x:Key="NotEmptyToVis" />
-            <converters:BoolToBrushConverter             x:Key="BoolToBrush" />
+            <BooleanToVisibilityConverter                        x:Key="BoolToVis" />
+            <converters:InverseBoolToVisibilityConverter         x:Key="InverseBoolToVis" />
+            <converters:NotEmptyToVisibilityConverter            x:Key="NotEmptyToVis" />
+            <converters:BoolToBrushConverter                     x:Key="BoolToBrush" />
+            <converters:BoolToControlAppearanceConverter         x:Key="BoolToAppearance" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>

@@ -54,6 +54,12 @@
                     Icon="{ui:SymbolIcon Symbol=Stack24}"
                     TargetPageType="{x:Type local:BatchPage}"
                     xmlns:local="clr-namespace:ImageAvatar.Views.Pages" />
+                <ui:NavigationViewItem
+                    x:Name="NavQcItem"
+                    Content="{DynamicResource NavQc}"
+                    Icon="{ui:SymbolIcon Symbol=CheckboxChecked24}"
+                    TargetPageType="{x:Type local:QcPage}"
+                    xmlns:local="clr-namespace:ImageAvatar.Views.Pages" />
             </ui:NavigationView.MenuItems>
 
             <ui:NavigationView.FooterMenuItems>

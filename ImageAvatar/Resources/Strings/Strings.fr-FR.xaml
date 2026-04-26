@@ -6,6 +6,7 @@
     <sys:String x:Key="AppTitle">ImageAvatar</sys:String>
     <sys:String x:Key="NavDashboard">Tableau de bord</sys:String>
     <sys:String x:Key="NavBatch">Traitement par lots</sys:String>
+    <sys:String x:Key="NavQc">Contrôle qualité</sys:String>
     <sys:String x:Key="NavSettings">Paramètres</sys:String>
 
     <sys:String x:Key="BtnRefresh">Actualiser</sys:String>
@@ -28,6 +29,23 @@
     <sys:String x:Key="LabelBatchCancelled">Annulé</sys:String>
     <sys:String x:Key="LabelNoTemplates">Aucun modèle trouvé dans le dossier sélectionné</sys:String>
     <sys:String x:Key="LabelBatchNoPatterns">Aucun fichier PNG trouvé dans 50_成品队列</sys:String>
+
+    <sys:String x:Key="BtnApprove">Approuver</sys:String>
+    <sys:String x:Key="BtnReject">Rejeter</sys:String>
+    <sys:String x:Key="BtnGridMode">Grille</sys:String>
+    <sys:String x:Key="BtnOverlayMode">Superposition</sys:String>
+    <sys:String x:Key="BtnResetZoom">Réinitialiser</sys:String>
+    <sys:String x:Key="LabelOriginal">ORIGINAL</sys:String>
+    <sys:String x:Key="LabelExtractedPng">PNG EXTRAIT</sys:String>
+    <sys:String x:Key="LabelFinalMockup">MAQUETTE FINALE</sys:String>
+    <sys:String x:Key="LabelOverlayOpacity">Opacité</sys:String>
+    <sys:String x:Key="LabelQcPending">● En attente</sys:String>
+    <sys:String x:Key="LabelQcApproved">✓ Approuvé</sys:String>
+    <sys:String x:Key="LabelQcRejected">✗ Rejeté</sys:String>
+    <sys:String x:Key="LabelNoQcItems">Aucun élément dans 51_成品完成</sys:String>
+    <sys:String x:Key="LabelSelectItem">Sélectionnez un élément à réviser</sys:String>
+    <sys:String x:Key="LabelProductionReady">→ Production_Ready</sys:String>
+    <sys:String x:Key="LabelRework">→ Retravail</sys:String>
 
     <sys:String x:Key="FolderExtractQueue">File d'extraction</sys:String>
     <sys:String x:Key="FolderExtractDone">Extraction terminée</sys:String>
