@@ -19,6 +19,7 @@
     <sys:String x:Key="BtnCancelBatch">Annuler</sys:String>
 
     <sys:String x:Key="LabelRootPath">Dossier racine</sys:String>
+    <sys:String x:Key="LabelDropHint">Déposez un dossier ici pour définir le répertoire de travail</sys:String>
     <sys:String x:Key="LabelExtracting">Extraction en cours…</sys:String>
     <sys:String x:Key="LabelModelLoaded">Modèle prêt</sys:String>
     <sys:String x:Key="LabelTemplatesFolder">Dossier de modèles</sys:String>

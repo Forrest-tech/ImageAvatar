@@ -30,4 +30,11 @@
     <Resource Include="Assets\**" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- appsettings.json ships with the executable for POD deployment customisation -->
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

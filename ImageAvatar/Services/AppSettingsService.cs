@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Configuration;
 using System.IO;
 using System.Text.Json;
 
@@ -20,7 +21,32 @@ public class AppSettingsService
         Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
         "ImageAvatar", "templates");
 
-    public static AppSettingsService Load()
+    // ── Loaders ────────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Loads user settings from %AppData%, then applies deployment defaults from
+    /// appsettings.json (via IConfiguration) for any path that is still at its
+    /// code default (i.e. the user has never saved their own value).
+    /// Priority: %AppData%\settings.json > appsettings.json > code defaults.
+    /// </summary>
+    public static AppSettingsService LoadWithDefaults(IConfiguration config)
+    {
+        bool userHasSaved = File.Exists(SettingsFile);
+        var settings = Load();
+
+        if (!userHasSaved)
+        {
+            // Apply POD deployment overrides from appsettings.json
+            var section = config.GetSection("ImageAvatar");
+            ApplyIfSet(section["WorkspaceRoot"],   v => settings.WorkspaceRoot   = v);
+            ApplyIfSet(section["ModelPath"],       v => settings.ModelPath       = v);
+            ApplyIfSet(section["TemplatesFolder"], v => settings.TemplatesFolder = v);
+        }
+
+        return settings;
+    }
+
+    private static AppSettingsService Load()
     {
         try
         {
@@ -31,7 +57,7 @@ public class AppSettingsService
                        ?? new AppSettingsService();
             }
         }
-        catch { /* corrupt file – use defaults */ }
+        catch { /* corrupt – use defaults */ }
 
         return new AppSettingsService();
     }
@@ -42,5 +68,10 @@ public class AppSettingsService
         Directory.CreateDirectory(dir);
         File.WriteAllText(SettingsFile,
             JsonSerializer.Serialize(this, new JsonSerializerOptions { WriteIndented = true }));
+    }
+
+    private static void ApplyIfSet(string? value, Action<string> apply)
+    {
+        if (!string.IsNullOrWhiteSpace(value)) apply(value);
     }
 }

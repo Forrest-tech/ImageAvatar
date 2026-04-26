@@ -10,8 +10,15 @@
     d:DataContext="{d:DesignInstance Type=vm:DashboardViewModel}"
     Scrollable="True">
 
-    <Grid Margin="24,16,24,24">
+    <!-- AllowDrop on the root Grid enables folder drag-and-drop anywhere on the page -->
+    <Grid Margin="24,16,24,24"
+          AllowDrop="True"
+          DragOver="OnDragOver"
+          DragEnter="OnDragEnter"
+          DragLeave="OnDragLeave"
+          Drop="OnDrop">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
@@ -58,6 +65,7 @@
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 <ui:TextBlock
                     Grid.Column="0"
@@ -67,7 +75,7 @@
                 <ui:TextBox
                     Grid.Column="1"
                     Text="{Binding RootPath, UpdateSourceTrigger=PropertyChanged}"
-                    PlaceholderText="C:\Work\ImageAvatar"
+                    PlaceholderText="{DynamicResource LabelDropHint}"
                     VerticalAlignment="Center" />
                 <ui:Button
                     Grid.Column="2"
@@ -76,12 +84,42 @@
                     Appearance="Primary"
                     Margin="8,0,0,0"
                     VerticalAlignment="Center" />
+                <!-- Open workspace root in Explorer -->
+                <ui:Button
+                    Grid.Column="3"
+                    Icon="{ui:SymbolIcon Symbol=FolderOpen24}"
+                    ToolTip="{DynamicResource BtnOpenFolder}"
+                    Command="{Binding OpenFolderCommand}"
+                    CommandParameter="{Binding RootPath}"
+                    Appearance="Secondary"
+                    Margin="4,0,0,0"
+                    VerticalAlignment="Center" />
             </Grid>
         </ui:Card>
 
-        <!-- ── Row 2: Extraction progress (while processing) ─────────── -->
-        <ui:Card
+        <!-- ── Row 2: Drag-and-drop hint (shown while dragging over page) -->
+        <Border
+            x:Name="DropHintBorder"
             Grid.Row="2"
+            Visibility="Collapsed"
+            BorderBrush="#4FC3F7"
+            BorderThickness="2"
+            CornerRadius="6"
+            Background="#0C4FC3F7"
+            Padding="12,10"
+            Margin="0,0,0,12">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <ui:SymbolIcon Symbol="FolderArrowRight24" Margin="0,0,8,0" Foreground="#4FC3F7" />
+                <ui:TextBlock
+                    Text="{DynamicResource LabelDropHint}"
+                    Foreground="#4FC3F7"
+                    FontTypography="BodyStrong" />
+            </StackPanel>
+        </Border>
+
+        <!-- ── Row 3: Extraction progress (while processing) ─────────── -->
+        <ui:Card
+            Grid.Row="3"
             Margin="0,0,0,12"
             Visibility="{Binding IsExtracting, Converter={StaticResource BoolToVis}}">
             <Grid>
@@ -108,9 +146,9 @@
             </Grid>
         </ui:Card>
 
-        <!-- ── Row 3: Last result status (after completion) ──────────── -->
+        <!-- ── Row 4: Last result status (after completion) ──────────── -->
         <ui:Card
-            Grid.Row="3"
+            Grid.Row="4"
             Margin="0,0,0,12"
             Visibility="{Binding ExtractionStatus, Converter={StaticResource NotEmptyToVis}}">
             <ui:TextBlock
@@ -120,8 +158,8 @@
                 Visibility="{Binding IsExtracting, Converter={StaticResource InverseBoolToVis}}" />
         </ui:Card>
 
-        <!-- ── Row 4: Pipeline folder cards ──────────────────────────── -->
-        <ItemsControl Grid.Row="4" ItemsSource="{Binding FolderItems}">
+        <!-- ── Row 5: Pipeline folder cards ──────────────────────────── -->
+        <ItemsControl Grid.Row="5" ItemsSource="{Binding FolderItems}">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
                     <UniformGrid Columns="3" />
@@ -175,7 +213,7 @@
                                     Margin="4,0,0,4" Opacity="0.6" />
                             </StackPanel>
 
-                            <!-- Open folder -->
+                            <!-- Open folder in Explorer -->
                             <ui:Button
                                 Grid.Row="3"
                                 Content="{DynamicResource BtnOpenFolder}"

@@ -19,6 +19,7 @@
     <sys:String x:Key="BtnCancelBatch">取消</sys:String>
 
     <sys:String x:Key="LabelRootPath">根目錄</sys:String>
+    <sys:String x:Key="LabelDropHint">拖放文件夾到此處以設置工作目錄</sys:String>
     <sys:String x:Key="LabelExtracting">正在提取背景…</sys:String>
     <sys:String x:Key="LabelModelLoaded">模型已就緒</sys:String>
     <sys:String x:Key="LabelTemplatesFolder">模板目錄</sys:String>

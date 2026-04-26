@@ -17,12 +17,14 @@ public partial class App : Application
 
     public App()
     {
-        var appSettings = AppSettingsService.Load();
-
         _host = Host.CreateDefaultBuilder()
-            .ConfigureServices((_, services) =>
+            .ConfigureAppConfiguration((_, builder) =>
+                builder.SetBasePath(AppContext.BaseDirectory)
+                       .AddJsonFile("appsettings.json", optional: true, reloadOnChange: false))
+            .ConfigureServices((ctx, services) =>
             {
-                // Settings (singleton instance loaded from disk)
+                // Settings: code defaults < appsettings.json < %AppData%\settings.json
+                var appSettings = AppSettingsService.LoadWithDefaults(ctx.Configuration);
                 services.AddSingleton(appSettings);
 
                 // Core services

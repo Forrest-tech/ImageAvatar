@@ -1,27 +1,73 @@
-## .NET / Visual Studio
-bin/
-obj/
-*.user
-*.suo
+## ── .NET / Visual Studio ───────────────────────────────────────────────────
+
+# Build outputs
+[Bb]in/
+[Oo]bj/
+[Oo]ut/
+[Ll]og/
+[Ll]ogs/
+
+# Visual Studio cache / options
 .vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
 *.userprefs
-*.pidb
-*.booproj
-*.svd
-*.pdb
-*.opendb
-*.VC.db
 
-## NuGet
+# NuGet
 *.nupkg
+*.snupkg
 packages/
-!**/packages/repositories.config
-.nuget/
+!**/packages/build/
+project.lock.json
+project.fragment.lock.json
+artifacts/
 
-## Rider / JetBrains
+# MSBuild
+[Mm]sBuild.log
+TempPE/
+
+# Rider
 .idea/
+*.sln.iml
 
-## OS
+# Publish
+publish/
+PublishProfiles/
+
+## ── Runtime / user data ─────────────────────────────────────────────────────
+
+# ONNX model (large binary – download separately from rembg)
+*.onnx
+
+# User-saved settings (per-machine, lives in %AppData%)
+settings.json
+
+## ── Pipeline workspace image data ───────────────────────────────────────────
+# Exclude all image files from the workspace pipeline folders.
+# The directory skeleton is preserved via .gitkeep files.
+
+workspace/**/*.png
+workspace/**/*.jpg
+workspace/**/*.jpeg
+workspace/**/*.bmp
+workspace/**/*.tiff
+workspace/**/*.tif
+workspace/**/*.webp
+workspace/**/*.gif
+workspace/**/*.psd
+workspace/**/*.ai
+
+# Keep directory markers
+!workspace/**/.gitkeep
+
+## ── OS generated ────────────────────────────────────────────────────────────
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
-desktop.ini
+Desktop.ini
