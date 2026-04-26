@@ -5,6 +5,7 @@
 
     <sys:String x:Key="AppTitle">ImageAvatar</sys:String>
     <sys:String x:Key="NavDashboard">Tableau de bord</sys:String>
+    <sys:String x:Key="NavBatch">Traitement par lots</sys:String>
     <sys:String x:Key="NavSettings">Paramètres</sys:String>
 
     <sys:String x:Key="BtnRefresh">Actualiser</sys:String>
@@ -13,10 +14,20 @@
     <sys:String x:Key="BtnOpenFolder">Ouvrir le dossier</sys:String>
     <sys:String x:Key="BtnBrowse">Parcourir…</sys:String>
     <sys:String x:Key="BtnLoadModel">Charger le modèle</sys:String>
+    <sys:String x:Key="BtnStartBatch">Lancer le lot</sys:String>
+    <sys:String x:Key="BtnCancelBatch">Annuler</sys:String>
 
     <sys:String x:Key="LabelRootPath">Dossier racine</sys:String>
     <sys:String x:Key="LabelExtracting">Extraction en cours…</sys:String>
     <sys:String x:Key="LabelModelLoaded">Modèle prêt</sys:String>
+    <sys:String x:Key="LabelTemplatesFolder">Dossier de modèles</sys:String>
+    <sys:String x:Key="LabelBatchIdle">Prêt</sys:String>
+    <sys:String x:Key="LabelBatchProcessing">Traitement en cours…</sys:String>
+    <sys:String x:Key="LabelBatchCompleted">Terminé</sys:String>
+    <sys:String x:Key="LabelBatchFailed">Échec</sys:String>
+    <sys:String x:Key="LabelBatchCancelled">Annulé</sys:String>
+    <sys:String x:Key="LabelNoTemplates">Aucun modèle trouvé dans le dossier sélectionné</sys:String>
+    <sys:String x:Key="LabelBatchNoPatterns">Aucun fichier PNG trouvé dans 50_成品队列</sys:String>
 
     <sys:String x:Key="FolderExtractQueue">File d'extraction</sys:String>
     <sys:String x:Key="FolderExtractDone">Extraction terminée</sys:String>

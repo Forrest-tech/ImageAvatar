@@ -48,6 +48,12 @@
                     Icon="{ui:SymbolIcon Symbol=Grid24}"
                     TargetPageType="{x:Type local:DashboardPage}"
                     xmlns:local="clr-namespace:ImageAvatar.Views.Pages" />
+                <ui:NavigationViewItem
+                    x:Name="NavBatchItem"
+                    Content="{DynamicResource NavBatch}"
+                    Icon="{ui:SymbolIcon Symbol=Stack24}"
+                    TargetPageType="{x:Type local:BatchPage}"
+                    xmlns:local="clr-namespace:ImageAvatar.Views.Pages" />
             </ui:NavigationView.MenuItems>
 
             <ui:NavigationView.FooterMenuItems>

@@ -5,6 +5,7 @@
 
     <sys:String x:Key="AppTitle">图像头像</sys:String>
     <sys:String x:Key="NavDashboard">仪表盘</sys:String>
+    <sys:String x:Key="NavBatch">批量处理</sys:String>
     <sys:String x:Key="NavSettings">设置</sys:String>
 
     <sys:String x:Key="BtnRefresh">刷新</sys:String>
@@ -13,10 +14,20 @@
     <sys:String x:Key="BtnOpenFolder">打开文件夹</sys:String>
     <sys:String x:Key="BtnBrowse">浏览…</sys:String>
     <sys:String x:Key="BtnLoadModel">加载模型</sys:String>
+    <sys:String x:Key="BtnStartBatch">开始批处理</sys:String>
+    <sys:String x:Key="BtnCancelBatch">取消</sys:String>
 
     <sys:String x:Key="LabelRootPath">根目录</sys:String>
     <sys:String x:Key="LabelExtracting">正在提取背景…</sys:String>
     <sys:String x:Key="LabelModelLoaded">模型已就绪</sys:String>
+    <sys:String x:Key="LabelTemplatesFolder">模板目录</sys:String>
+    <sys:String x:Key="LabelBatchIdle">就绪</sys:String>
+    <sys:String x:Key="LabelBatchProcessing">正在处理…</sys:String>
+    <sys:String x:Key="LabelBatchCompleted">已完成</sys:String>
+    <sys:String x:Key="LabelBatchFailed">失败</sys:String>
+    <sys:String x:Key="LabelBatchCancelled">已取消</sys:String>
+    <sys:String x:Key="LabelNoTemplates">所选目录中未找到模板</sys:String>
+    <sys:String x:Key="LabelBatchNoPatterns">50_成品队列 中未找到 PNG 文件</sys:String>
 
     <sys:String x:Key="FolderExtractQueue">提图队列</sys:String>
     <sys:String x:Key="FolderExtractDone">提图完成</sys:String>

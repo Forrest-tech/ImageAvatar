@@ -16,6 +16,10 @@ public class AppSettingsService
     public string WorkspaceRoot { get; set; } =
         Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 
+    public string TemplatesFolder { get; set; } = Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+        "ImageAvatar", "templates");
+
     public static AppSettingsService Load()
     {
         try

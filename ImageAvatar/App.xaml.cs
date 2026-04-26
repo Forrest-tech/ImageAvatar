@@ -30,16 +30,20 @@ public partial class App : Application
                 services.AddSingleton<IStorageService, StorageService>();
                 services.AddSingleton<IImageExtractionService, ImageExtractionService>();
                 services.AddSingleton<IPipelineCoordinatorService, PipelineCoordinatorService>();
+                services.AddSingleton<IMockupService, MockupService>();
+                services.AddSingleton<IBatchMockupService, BatchMockupService>();
 
                 // ViewModels
                 services.AddSingleton<MainWindowViewModel>();
                 services.AddTransient<DashboardViewModel>();
                 services.AddTransient<SettingsViewModel>();
+                services.AddTransient<BatchProcessorViewModel>();
 
                 // Views
                 services.AddSingleton<MainWindow>();
                 services.AddTransient<DashboardPage>();
                 services.AddTransient<SettingsPage>();
+                services.AddTransient<BatchPage>();
             })
             .Build();
     }

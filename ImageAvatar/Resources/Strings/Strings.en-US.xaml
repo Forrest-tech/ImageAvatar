@@ -5,6 +5,7 @@
 
     <sys:String x:Key="AppTitle">ImageAvatar</sys:String>
     <sys:String x:Key="NavDashboard">Dashboard</sys:String>
+    <sys:String x:Key="NavBatch">Batch Processing</sys:String>
     <sys:String x:Key="NavSettings">Settings</sys:String>
 
     <sys:String x:Key="BtnRefresh">Refresh</sys:String>
@@ -13,10 +14,20 @@
     <sys:String x:Key="BtnOpenFolder">Open Folder</sys:String>
     <sys:String x:Key="BtnBrowse">Browse…</sys:String>
     <sys:String x:Key="BtnLoadModel">Load Model</sys:String>
+    <sys:String x:Key="BtnStartBatch">Start Batch</sys:String>
+    <sys:String x:Key="BtnCancelBatch">Cancel</sys:String>
 
     <sys:String x:Key="LabelRootPath">Root Path</sys:String>
     <sys:String x:Key="LabelExtracting">Extracting background…</sys:String>
     <sys:String x:Key="LabelModelLoaded">Model Ready</sys:String>
+    <sys:String x:Key="LabelTemplatesFolder">Templates Folder</sys:String>
+    <sys:String x:Key="LabelBatchIdle">Ready</sys:String>
+    <sys:String x:Key="LabelBatchProcessing">Processing…</sys:String>
+    <sys:String x:Key="LabelBatchCompleted">Completed</sys:String>
+    <sys:String x:Key="LabelBatchFailed">Failed</sys:String>
+    <sys:String x:Key="LabelBatchCancelled">Cancelled</sys:String>
+    <sys:String x:Key="LabelNoTemplates">No templates found in the selected folder</sys:String>
+    <sys:String x:Key="LabelBatchNoPatterns">No PNG files found in 50_成品队列</sys:String>
 
     <sys:String x:Key="FolderExtractQueue">Extract Queue</sys:String>
     <sys:String x:Key="FolderExtractDone">Extract Done</sys:String>
