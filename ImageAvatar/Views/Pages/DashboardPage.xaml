@@ -37,17 +37,17 @@
                 Command="{Binding ToggleWatchingCommand}"
                 Margin="8,0,0,0"
                 VerticalAlignment="Center" />
-            <!-- Model status badge -->
+            <!-- Model-ready badge (only shown when model is loaded) -->
             <Border
-                Background="{Binding IsModelLoaded, Converter={StaticResource BoolToBrush}}"
+                Background="#1B5E20"
                 CornerRadius="4"
-                Padding="8,4"
+                Padding="8,3"
                 Margin="16,0,0,0"
-                VerticalAlignment="Center">
+                VerticalAlignment="Center"
+                Visibility="{Binding IsModelLoaded, Converter={StaticResource BoolToVis}}">
                 <ui:TextBlock
                     Text="{DynamicResource LabelModelLoaded}"
-                    Visibility="{Binding IsModelLoaded, Converter={StaticResource BoolToVis}}"
-                    FontSize="12" />
+                    FontSize="11" />
             </Border>
         </StackPanel>
 
@@ -79,7 +79,7 @@
             </Grid>
         </ui:Card>
 
-        <!-- ── Row 2: Extraction progress (visible while processing) ──── -->
+        <!-- ── Row 2: Extraction progress (while processing) ─────────── -->
         <ui:Card
             Grid.Row="2"
             Margin="0,0,0,12"
@@ -91,7 +91,7 @@
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
                 <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,6">
-                    <ui:SymbolIcon Symbol="ImageMultiple24" Margin="0,0,8,0" VerticalAlignment="Center" />
+                    <ui:SymbolIcon Symbol="Image24" Margin="0,0,8,0" VerticalAlignment="Center" />
                     <ui:TextBlock Text="{DynamicResource LabelExtracting}" FontTypography="BodyStrong" />
                 </StackPanel>
                 <ProgressBar
@@ -108,17 +108,16 @@
             </Grid>
         </ui:Card>
 
-        <!-- ── Row 3: Last result status (shown after completion) ─────── -->
+        <!-- ── Row 3: Last result status (after completion) ──────────── -->
         <ui:Card
             Grid.Row="3"
             Margin="0,0,0,12"
-            Visibility="{Binding IsExtracting, Converter={StaticResource InverseBoolToVis}}">
+            Visibility="{Binding ExtractionStatus, Converter={StaticResource NotEmptyToVis}}">
             <ui:TextBlock
                 Text="{Binding ExtractionStatus}"
                 Opacity="0.65"
                 FontSize="11"
-                Visibility="{Binding ExtractionStatus,
-                    Converter={StaticResource NotEmptyToVis}}" />
+                Visibility="{Binding IsExtracting, Converter={StaticResource InverseBoolToVis}}" />
         </ui:Card>
 
         <!-- ── Row 4: Pipeline folder cards ──────────────────────────── -->

@@ -15,10 +15,6 @@
     ExtendsContentIntoTitleBar="True"
     WindowStartupLocation="CenterScreen">
 
-    <ui:FluentWindow.Resources>
-        <BooleanToVisibilityConverter x:Key="BoolToVis" />
-    </ui:FluentWindow.Resources>
-
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />

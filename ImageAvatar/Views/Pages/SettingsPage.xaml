@@ -20,17 +20,18 @@
         <!-- ── AI Model ──────────────────────────────────────────────── -->
         <ui:CardExpander
             Header="{DynamicResource SettingsModelHeader}"
-            Icon="{ui:SymbolIcon Symbol=BrainCircuit24}"
+            Icon="{ui:SymbolIcon Symbol=Bot24}"
             IsExpanded="True"
             Margin="0,0,0,12">
-            <StackPanel Margin="0,8,0,0" Spacing="10">
+            <StackPanel Margin="0,8,0,0">
 
                 <ui:TextBlock
                     Text="{DynamicResource SettingsModelDesc}"
-                    Opacity="0.7" />
+                    Opacity="0.7"
+                    Margin="0,0,0,10" />
 
                 <!-- Model path row -->
-                <Grid>
+                <Grid Margin="0,0,0,10">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="Auto" />
@@ -58,17 +59,21 @@
                 </Grid>
 
                 <!-- Status row -->
-                <StackPanel Orientation="Horizontal" Spacing="8">
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
                     <ui:SymbolIcon
                         Symbol="Checkmark24"
                         Foreground="#4CAF50"
+                        Margin="0,0,8,0"
                         Visibility="{Binding IsModelLoaded, Converter={StaticResource BoolToVis}}" />
                     <ui:SymbolIcon
                         Symbol="ErrorCircle24"
                         Foreground="#F44336"
-                        Visibility="{Binding IsModelLoaded,
-                            Converter={StaticResource InverseBoolToVis}}" />
-                    <ui:TextBlock Text="{Binding ModelStatus}" VerticalAlignment="Center" />
+                        Margin="0,0,8,0"
+                        Visibility="{Binding IsModelLoaded, Converter={StaticResource InverseBoolToVis}}" />
+                    <ui:TextBlock
+                        Text="{Binding ModelStatus}"
+                        VerticalAlignment="Center"
+                        Margin="0,0,8,0" />
                     <ui:ProgressRing
                         IsIndeterminate="True"
                         Width="16" Height="16"
@@ -89,8 +94,11 @@
             Icon="{ui:SymbolIcon Symbol=LocalLanguage24}"
             IsExpanded="True"
             Margin="0,0,0,12">
-            <StackPanel Margin="0,8,0,0" Spacing="10">
-                <ui:TextBlock Text="{DynamicResource SettingsLanguageDesc}" Opacity="0.7" />
+            <StackPanel Margin="0,8,0,0">
+                <ui:TextBlock
+                    Text="{DynamicResource SettingsLanguageDesc}"
+                    Opacity="0.7"
+                    Margin="0,0,0,10" />
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
@@ -117,8 +125,11 @@
             Header="{DynamicResource SettingsThemeHeader}"
             Icon="{ui:SymbolIcon Symbol=PaintBrush24}"
             IsExpanded="True">
-            <StackPanel Margin="0,8,0,0" Spacing="10">
-                <ui:TextBlock Text="{DynamicResource SettingsThemeDesc}" Opacity="0.7" />
+            <StackPanel Margin="0,8,0,0">
+                <ui:TextBlock
+                    Text="{DynamicResource SettingsThemeDesc}"
+                    Opacity="0.7"
+                    Margin="0,0,0,10" />
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
