@@ -37,9 +37,9 @@
                 Icon="{ui:SymbolIcon Symbol=ArrowSync24}"
                 Appearance="Secondary"
                 VerticalAlignment="Center" />
-            <ToggleButton
+            <ui:Button
                 Content="{DynamicResource BtnWatch}"
-                IsChecked="{Binding IsWatching, Mode=OneWay}"
+                Appearance="{Binding IsWatching, Converter={StaticResource BoolToAppearance}}"
                 Command="{Binding ToggleWatchingCommand}"
                 Margin="8,0,0,0"
                 VerticalAlignment="Center" />
