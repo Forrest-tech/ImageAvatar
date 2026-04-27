@@ -3,10 +3,11 @@ using ImageAvatar.Views.Pages;
 using System.Windows;
 using Wpf.Ui;
 using Wpf.Ui.Appearance;
+using Wpf.Ui.Controls;
 
 namespace ImageAvatar.Views;
 
-public partial class MainWindow : Wpf.Ui.Controls.FluentWindow
+public partial class MainWindow : FluentWindow
 {
     public MainWindow(MainWindowViewModel viewModel, IPageService pageService)
     {
@@ -20,4 +21,8 @@ public partial class MainWindow : Wpf.Ui.Controls.FluentWindow
     {
         RootNavigation.Navigate(typeof(DashboardPage));
     }
+
+    // Fired when the user picks a nav item; navigation itself is handled
+    // automatically by TargetPageType + IPageService.
+    private void OnNavigationSelectionChanged(object sender, RoutedEventArgs e) { }
 }
