@@ -6,6 +6,7 @@ using ImageAvatar.Views.Pages;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Windows;
+using Wpf.Ui;
 
 namespace ImageAvatar;
 
@@ -42,6 +43,9 @@ public partial class App : Application
                 services.AddTransient<SettingsViewModel>();
                 services.AddTransient<BatchProcessorViewModel>();
                 services.AddTransient<QcViewModel>();
+
+                // Navigation
+                services.AddSingleton<IPageService, NavigationPageService>();
 
                 // Views
                 services.AddSingleton<MainWindow>();
