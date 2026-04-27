@@ -1,9 +1,9 @@
 using ImageAvatar.ViewModels;
-using Wpf.Ui.Controls;
+using System.Windows.Controls;
 
 namespace ImageAvatar.Views.Pages;
 
-public partial class BatchPage : Page
+public partial class BatchPage : UserControl
 {
     public BatchPage(BatchProcessorViewModel vm)
     {

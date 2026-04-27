@@ -1,8 +1,9 @@
 using ImageAvatar.ViewModels;
+using System.Windows.Controls;
 
 namespace ImageAvatar.Views.Pages;
 
-public partial class SettingsPage : Wpf.Ui.Controls.Page
+public partial class SettingsPage : UserControl
 {
     public SettingsPage(SettingsViewModel viewModel)
     {

@@ -5,7 +5,7 @@ using System.Windows.Controls;
 
 namespace ImageAvatar.Views.Pages;
 
-public partial class DashboardPage : Wpf.Ui.Controls.Page
+public partial class DashboardPage : UserControl
 {
     public DashboardPage(DashboardViewModel viewModel)
     {

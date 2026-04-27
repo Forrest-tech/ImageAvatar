@@ -1,4 +1,4 @@
-<ui:Page
+<UserControl
     x:Class="ImageAvatar.Views.Pages.DashboardPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -7,8 +7,7 @@
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     xmlns:vm="clr-namespace:ImageAvatar.ViewModels"
     mc:Ignorable="d"
-    d:DataContext="{d:DesignInstance Type=vm:DashboardViewModel}"
-    Scrollable="True">
+    d:DataContext="{d:DesignInstance Type=vm:DashboardViewModel}">
 
     <!-- AllowDrop on the root Grid enables folder drag-and-drop anywhere on the page -->
     <Grid Margin="24,16,24,24"
@@ -229,4 +228,4 @@
             </ItemsControl.ItemTemplate>
         </ItemsControl>
     </Grid>
-</ui:Page>
+</UserControl>
