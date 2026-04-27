@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ImageAvatar.Contracts.Services;
 using ImageAvatar.Models;
+using ImageAvatar.Services;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Windows;
@@ -13,6 +14,7 @@ public partial class DashboardViewModel : ObservableObject
     private readonly IStorageService             _storage;
     private readonly IPipelineCoordinatorService _coordinator;
     private readonly IImageExtractionService     _extraction;
+    private readonly AppSettingsService          _settings;
 
     // ── Folder display ─────────────────────────────────────────────────────
     [ObservableProperty] private string _rootPath;
@@ -30,11 +32,13 @@ public partial class DashboardViewModel : ObservableObject
     public DashboardViewModel(
         IStorageService             storage,
         IPipelineCoordinatorService coordinator,
-        IImageExtractionService     extraction)
+        IImageExtractionService     extraction,
+        AppSettingsService          settings)
     {
         _storage     = storage;
         _coordinator = coordinator;
         _extraction  = extraction;
+        _settings    = settings;
 
         _rootPath      = storage.RootPath;
         _isModelLoaded = extraction.IsModelLoaded;
@@ -124,6 +128,8 @@ public partial class DashboardViewModel : ObservableObject
         _storage.RootPath = RootPath;
         _storage.RefreshAll();
         LoadFolders();
+        _settings.WorkspaceRoot = RootPath;
+        _settings.Save();
     }
 
     [RelayCommand]

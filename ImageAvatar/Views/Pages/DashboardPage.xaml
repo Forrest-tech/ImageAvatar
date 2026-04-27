@@ -40,7 +40,7 @@
                 VerticalAlignment="Center" />
             <ui:ToggleButton
                 Content="{DynamicResource BtnWatch}"
-                IsChecked="{Binding IsWatching}"
+                IsChecked="{Binding IsWatching, Mode=OneWay}"
                 Command="{Binding ToggleWatchingCommand}"
                 Margin="8,0,0,0"
                 VerticalAlignment="Center" />

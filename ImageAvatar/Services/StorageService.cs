@@ -8,7 +8,7 @@ public class StorageService : IStorageService, IDisposable
 {
     private readonly List<PipelineFolder> _folders;
     private readonly List<FileSystemWatcher> _watchers = [];
-    private string _rootPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+    private string _rootPath = null!;
 
     public event EventHandler<FolderChangedEventArgs>? FolderChanged;
 
@@ -24,8 +24,12 @@ public class StorageService : IStorageService, IDisposable
 
     public IReadOnlyList<PipelineFolder> Folders => _folders;
 
-    public StorageService()
+    public StorageService(AppSettingsService settings)
     {
+        _rootPath = !string.IsNullOrWhiteSpace(settings.WorkspaceRoot)
+            ? settings.WorkspaceRoot
+            : Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+
         _folders =
         [
             new PipelineFolder { FolderName = "00_提图队列", LabelKey = "FolderExtractQueue",   Stage = PipelineStage.Extract,  Role = FolderRole.Queue },

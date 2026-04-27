@@ -48,7 +48,7 @@
                 <ui:Button
                     Content="{DynamicResource BtnResetZoom}"
                     Command="{Binding ResetZoomCommand}"
-                    Icon="{ui:SymbolIcon Symbol=ZoomFit24}"
+                    Icon="{ui:SymbolIcon Symbol=ZoomIn24}"
                     Appearance="Secondary"
                     Margin="20,0,0,0"
                     VerticalAlignment="Center" />
