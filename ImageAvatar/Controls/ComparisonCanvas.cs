@@ -196,8 +196,7 @@ public sealed class ComparisonCanvas : System.Windows.Controls.UserControl
         {
             using var overlayPaint = new SKPaint
             {
-                Color         = SKColors.White.WithAlpha((byte)(OverlayOpacity * 255)),
-                FilterQuality = SKFilterQuality.Medium
+                Color = SKColors.White.WithAlpha((byte)(OverlayOpacity * 255)),
             };
             canvas.DrawBitmap(overlay, 0, 0, overlayPaint);
         }
