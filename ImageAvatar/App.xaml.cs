@@ -1,3 +1,4 @@
+using ImageAvatar.Contracts.Services;
 using ImageAvatar.Services;
 using ImageAvatar.ViewModels;
 using ImageAvatar.Views;
