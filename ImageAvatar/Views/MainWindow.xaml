@@ -27,34 +27,33 @@
             Title="{DynamicResource AppTitle}"
             Icon="pack://application:,,,/Assets/app.png" />
 
-        <!-- NavigationView -->
+        <!-- NavigationView with manual ContentControl navigation -->
         <ui:NavigationView
             x:Name="RootNavigation"
             Grid.Row="1"
+            xmlns:pages="clr-namespace:ImageAvatar.Views.Pages"
             PaneDisplayMode="Left"
             IsPaneOpen="True"
             OpenPaneLength="220"
-            Loaded="OnNavigationViewLoaded">
+            Loaded="OnNavigationViewLoaded"
+            SelectionChanged="OnNavigationSelectionChanged">
 
             <ui:NavigationView.MenuItems>
                 <ui:NavigationViewItem
                     x:Name="NavDashboard"
                     Content="{DynamicResource NavDashboard}"
                     Icon="{ui:SymbolIcon Symbol=Grid24}"
-                    TargetPageType="{x:Type local:DashboardPage}"
-                    xmlns:local="clr-namespace:ImageAvatar.Views.Pages" />
+                    Tag="{x:Type pages:DashboardPage}" />
                 <ui:NavigationViewItem
                     x:Name="NavBatchItem"
                     Content="{DynamicResource NavBatch}"
                     Icon="{ui:SymbolIcon Symbol=Stack24}"
-                    TargetPageType="{x:Type local:BatchPage}"
-                    xmlns:local="clr-namespace:ImageAvatar.Views.Pages" />
+                    Tag="{x:Type pages:BatchPage}" />
                 <ui:NavigationViewItem
                     x:Name="NavQcItem"
                     Content="{DynamicResource NavQc}"
                     Icon="{ui:SymbolIcon Symbol=CheckboxChecked24}"
-                    TargetPageType="{x:Type local:QcPage}"
-                    xmlns:local="clr-namespace:ImageAvatar.Views.Pages" />
+                    Tag="{x:Type pages:QcPage}" />
             </ui:NavigationView.MenuItems>
 
             <ui:NavigationView.FooterMenuItems>
@@ -62,9 +61,10 @@
                     x:Name="NavSettings"
                     Content="{DynamicResource NavSettings}"
                     Icon="{ui:SymbolIcon Symbol=Settings24}"
-                    TargetPageType="{x:Type local:SettingsPage}"
-                    xmlns:local="clr-namespace:ImageAvatar.Views.Pages" />
+                    Tag="{x:Type pages:SettingsPage}" />
             </ui:NavigationView.FooterMenuItems>
+
+            <ContentControl x:Name="PageContent" />
 
         </ui:NavigationView>
     </Grid>

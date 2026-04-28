@@ -1,4 +1,3 @@
-using ImageAvatar.Contracts.Services;
 using ImageAvatar.Services;
 using ImageAvatar.ViewModels;
 using ImageAvatar.Views;
@@ -6,7 +5,6 @@ using ImageAvatar.Views.Pages;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Windows;
-using Wpf.Ui;
 
 namespace ImageAvatar;
 
@@ -39,20 +37,17 @@ public partial class App : Application
 
                 // ViewModels
                 services.AddSingleton<MainWindowViewModel>();
-                services.AddTransient<DashboardViewModel>();
-                services.AddTransient<SettingsViewModel>();
-                services.AddTransient<BatchProcessorViewModel>();
-                services.AddTransient<QcViewModel>();
-
-                // Navigation
-                services.AddSingleton<IPageService, NavigationPageService>();
+                services.AddSingleton<DashboardViewModel>();
+                services.AddSingleton<SettingsViewModel>();
+                services.AddSingleton<BatchProcessorViewModel>();
+                services.AddSingleton<QcViewModel>();
 
                 // Views
                 services.AddSingleton<MainWindow>();
-                services.AddTransient<DashboardPage>();
-                services.AddTransient<SettingsPage>();
-                services.AddTransient<BatchPage>();
-                services.AddTransient<QcPage>();
+                services.AddSingleton<DashboardPage>();
+                services.AddSingleton<SettingsPage>();
+                services.AddSingleton<BatchPage>();
+                services.AddSingleton<QcPage>();
             })
             .Build();
     }
