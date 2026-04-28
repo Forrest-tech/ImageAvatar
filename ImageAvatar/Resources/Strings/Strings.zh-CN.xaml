@@ -11,6 +11,9 @@
 
     <sys:String x:Key="BtnRefresh">刷新</sys:String>
     <sys:String x:Key="BtnWatch">监控</sys:String>
+    <sys:String x:Key="BtnOpenWorkspace">打开工作区</sys:String>
+    <sys:String x:Key="BtnStartService">启动服务</sys:String>
+    <sys:String x:Key="BtnStopService">停止服务</sys:String>
     <sys:String x:Key="BtnApply">应用</sys:String>
     <sys:String x:Key="BtnOpenFolder">打开文件夹</sys:String>
     <sys:String x:Key="BtnBrowse">浏览…</sys:String>
@@ -19,6 +22,12 @@
     <sys:String x:Key="BtnCancelBatch">取消</sys:String>
 
     <sys:String x:Key="LabelRootPath">根目录</sys:String>
+    <sys:String x:Key="LabelServiceSection">服务管理</sys:String>
+    <sys:String x:Key="LabelAutoExtractionService">自动提图服务</sys:String>
+    <sys:String x:Key="LabelAutoExtractionDesc">监控提图队列，自动移除图像背景</sys:String>
+    <sys:String x:Key="LabelStatus">状态：</sys:String>
+    <sys:String x:Key="LabelServiceRunning">运行中</sys:String>
+    <sys:String x:Key="LabelServiceStopped">已停止</sys:String>
     <sys:String x:Key="LabelDropHint">拖放文件夹到此处以设置工作目录</sys:String>
     <sys:String x:Key="LabelExtracting">正在提取背景…</sys:String>
     <sys:String x:Key="LabelModelLoaded">模型已就绪</sys:String>

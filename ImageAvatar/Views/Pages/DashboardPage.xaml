@@ -9,223 +9,244 @@
     mc:Ignorable="d"
     d:DataContext="{d:DesignInstance Type=vm:DashboardViewModel}">
 
-    <!-- AllowDrop on the root Grid enables folder drag-and-drop anywhere on the page -->
-    <Grid Margin="24,16,24,24"
-          AllowDrop="True"
+    <Grid AllowDrop="True"
           DragOver="OnDragOver"
           DragEnter="OnDragEnter"
           DragLeave="OnDragLeave"
           Drop="OnDrop">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
 
-        <!-- ── Row 0: Page header ─────────────────────────────────────── -->
-        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,16">
-            <ui:TextBlock
-                Text="{DynamicResource NavDashboard}"
-                FontTypography="TitleLarge"
-                Margin="0,0,16,0" />
-            <ui:Button
-                Content="{DynamicResource BtnRefresh}"
-                Command="{Binding RefreshCommand}"
-                Icon="{ui:SymbolIcon Symbol=ArrowSync24}"
-                Appearance="Secondary"
-                VerticalAlignment="Center" />
-            <ui:Button
-                Content="{DynamicResource BtnWatch}"
-                Appearance="{Binding IsWatching, Converter={StaticResource BoolToAppearance}}"
-                Command="{Binding ToggleWatchingCommand}"
-                Margin="8,0,0,0"
-                VerticalAlignment="Center" />
-            <!-- Model-ready badge (only shown when model is loaded) -->
-            <Border
-                Background="#1B5E20"
-                CornerRadius="4"
-                Padding="8,3"
-                Margin="16,0,0,0"
-                VerticalAlignment="Center"
-                Visibility="{Binding IsModelLoaded, Converter={StaticResource BoolToVis}}">
-                <ui:TextBlock
-                    Text="{DynamicResource LabelModelLoaded}"
-                    FontSize="11" />
-            </Border>
-        </StackPanel>
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <StackPanel Margin="24,16,24,24" MaxWidth="680" HorizontalAlignment="Left">
 
-        <!-- ── Row 1: Root path ───────────────────────────────────────── -->
-        <ui:Card Grid.Row="1" Margin="0,0,0,12">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
-                <ui:TextBlock
-                    Grid.Column="0"
-                    Text="{DynamicResource LabelRootPath}"
-                    VerticalAlignment="Center"
-                    Margin="0,0,12,0" />
-                <ui:TextBox
-                    Grid.Column="1"
-                    Text="{Binding RootPath, UpdateSourceTrigger=PropertyChanged}"
-                    PlaceholderText="{DynamicResource LabelDropHint}"
-                    VerticalAlignment="Center" />
+                <!-- ── Header ────────────────────────────────────────────── -->
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
+                    <ui:TextBlock
+                        Text="{DynamicResource NavDashboard}"
+                        FontTypography="TitleLarge"
+                        VerticalAlignment="Center"
+                        Margin="0,0,16,0" />
+                    <ui:Button
+                        Content="{DynamicResource BtnRefresh}"
+                        Command="{Binding RefreshCommand}"
+                        Icon="{ui:SymbolIcon Symbol=ArrowSync24}"
+                        Appearance="Secondary"
+                        VerticalAlignment="Center" />
+                    <Border
+                        Background="#1B5E20"
+                        CornerRadius="4"
+                        Padding="8,3"
+                        Margin="12,0,0,0"
+                        VerticalAlignment="Center"
+                        Visibility="{Binding IsModelLoaded, Converter={StaticResource BoolToVis}}">
+                        <StackPanel Orientation="Horizontal">
+                            <ui:SymbolIcon Symbol="CheckmarkCircle24" FontSize="12"
+                                           Foreground="#81C784" Margin="0,0,5,0" />
+                            <ui:TextBlock Text="{DynamicResource LabelModelLoaded}" FontSize="11" />
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
+                <!-- ── Workspace directory ───────────────────────────────── -->
+                <ui:Card Margin="0,0,0,12">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <ui:TextBlock
+                            Grid.Column="0"
+                            Text="{DynamicResource LabelRootPath}"
+                            VerticalAlignment="Center"
+                            Margin="0,0,12,0" />
+                        <ui:TextBox
+                            Grid.Column="1"
+                            Text="{Binding RootPath, UpdateSourceTrigger=PropertyChanged}"
+                            PlaceholderText="{DynamicResource LabelDropHint}"
+                            VerticalAlignment="Center" />
+                        <ui:Button
+                            Grid.Column="2"
+                            Content="{DynamicResource BtnBrowse}"
+                            Command="{Binding BrowseSourceFolderCommand}"
+                            Appearance="Secondary"
+                            Margin="8,0,0,0"
+                            VerticalAlignment="Center" />
+                        <ui:Button
+                            Grid.Column="3"
+                            Content="{DynamicResource BtnApply}"
+                            Command="{Binding ApplyRootPathCommand}"
+                            Appearance="Primary"
+                            Margin="4,0,0,0"
+                            VerticalAlignment="Center" />
+                        <ui:Button
+                            Grid.Column="4"
+                            Icon="{ui:SymbolIcon Symbol=FolderOpen24}"
+                            ToolTip="{DynamicResource BtnOpenFolder}"
+                            Command="{Binding OpenFolderCommand}"
+                            CommandParameter="{Binding RootPath}"
+                            Appearance="Secondary"
+                            Margin="4,0,0,0"
+                            VerticalAlignment="Center" />
+                    </Grid>
+                </ui:Card>
+
+                <!-- ── Open workspace button ─────────────────────────────── -->
                 <ui:Button
-                    Grid.Column="2"
-                    Content="{DynamicResource BtnApply}"
-                    Command="{Binding ApplyRootPathCommand}"
-                    Appearance="Primary"
-                    Margin="8,0,0,0"
-                    VerticalAlignment="Center" />
-                <!-- Open workspace root in Explorer -->
-                <ui:Button
-                    Grid.Column="3"
-                    Icon="{ui:SymbolIcon Symbol=FolderOpen24}"
-                    ToolTip="{DynamicResource BtnOpenFolder}"
+                    Content="{DynamicResource BtnOpenWorkspace}"
                     Command="{Binding OpenFolderCommand}"
                     CommandParameter="{Binding RootPath}"
+                    Icon="{ui:SymbolIcon Symbol=FolderOpen24}"
                     Appearance="Secondary"
-                    Margin="4,0,0,0"
-                    VerticalAlignment="Center" />
-            </Grid>
-        </ui:Card>
+                    HorizontalAlignment="Stretch"
+                    HorizontalContentAlignment="Center"
+                    Padding="0,12"
+                    Margin="0,0,0,16" />
 
-        <!-- ── Row 2: Drag-and-drop hint (shown while dragging over page) -->
-        <Border
-            x:Name="DropHintBorder"
-            Grid.Row="2"
-            Visibility="Collapsed"
-            BorderBrush="#4FC3F7"
-            BorderThickness="2"
-            CornerRadius="6"
-            Background="#0C4FC3F7"
-            Padding="12,10"
-            Margin="0,0,0,12">
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                <ui:SymbolIcon Symbol="FolderArrowRight24" Margin="0,0,8,0" Foreground="#4FC3F7" />
+                <!-- ── Drag-and-drop hint (shown while dragging) ─────────── -->
+                <Border
+                    x:Name="DropHintBorder"
+                    Visibility="Collapsed"
+                    BorderBrush="#4FC3F7"
+                    BorderThickness="2"
+                    CornerRadius="6"
+                    Background="#0C4FC3F7"
+                    Padding="12,10"
+                    Margin="0,0,0,12">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                        <ui:SymbolIcon Symbol="FolderArrowRight24" Margin="0,0,8,0" Foreground="#4FC3F7" />
+                        <ui:TextBlock
+                            Text="{DynamicResource LabelDropHint}"
+                            Foreground="#4FC3F7"
+                            FontTypography="BodyStrong" />
+                    </StackPanel>
+                </Border>
+
+                <!-- ── Services section header ───────────────────────────── -->
                 <ui:TextBlock
-                    Text="{DynamicResource LabelDropHint}"
-                    Foreground="#4FC3F7"
-                    FontTypography="BodyStrong" />
-            </StackPanel>
-        </Border>
+                    Text="{DynamicResource LabelServiceSection}"
+                    FontTypography="BodyStrong"
+                    Opacity="0.50"
+                    Margin="0,0,0,8" />
 
-        <!-- ── Row 3: Extraction progress (while processing) ─────────── -->
-        <ui:Card
-            Grid.Row="3"
-            Margin="0,0,0,12"
-            Visibility="{Binding IsExtracting, Converter={StaticResource BoolToVis}}">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
-                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,6">
-                    <ui:SymbolIcon Symbol="Image24" Margin="0,0,8,0" VerticalAlignment="Center" />
-                    <ui:TextBlock Text="{DynamicResource LabelExtracting}" FontTypography="BodyStrong" />
-                </StackPanel>
-                <ProgressBar
-                    Grid.Row="1"
-                    Value="{Binding ExtractionProgress}"
-                    Maximum="1.0"
-                    Height="6"
-                    Margin="0,0,0,4" />
-                <ui:TextBlock
-                    Grid.Row="2"
-                    Text="{Binding ExtractionStatus}"
-                    Opacity="0.65"
-                    FontSize="11" />
-            </Grid>
-        </ui:Card>
+                <!-- ── Auto-extraction service card ──────────────────────── -->
+                <Border
+                    CornerRadius="8"
+                    Margin="0,0,0,8"
+                    Padding="16,14">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="Background" Value="#1E1E1E" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsWatching}" Value="True">
+                                    <Setter Property="Background" Value="#0D2A1A" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
 
-        <!-- ── Row 4: Last result status (after completion) ──────────── -->
-        <ui:Card
-            Grid.Row="4"
-            Margin="0,0,0,12"
-            Visibility="{Binding ExtractionStatus, Converter={StaticResource NotEmptyToVis}}">
-            <ui:TextBlock
-                Text="{Binding ExtractionStatus}"
-                Opacity="0.65"
-                FontSize="11"
-                Visibility="{Binding IsExtracting, Converter={StaticResource InverseBoolToVis}}" />
-        </ui:Card>
+                        <!-- Running indicator dot -->
+                        <Ellipse
+                            Grid.Column="0"
+                            Width="10" Height="10"
+                            Fill="{Binding IsWatching, Converter={StaticResource BoolToBrush}}"
+                            VerticalAlignment="Center"
+                            Margin="0,0,14,0" />
 
-        <!-- ── Row 5: Pipeline folder cards ──────────────────────────── -->
-        <ItemsControl Grid.Row="5" ItemsSource="{Binding FolderItems}">
-            <ItemsControl.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <UniformGrid Columns="3" />
-                </ItemsPanelTemplate>
-            </ItemsControl.ItemsPanel>
-            <ItemsControl.ItemTemplate>
-                <DataTemplate DataType="{x:Type vm:FolderStatusItem}">
-                    <ui:Card Margin="6">
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="*" />
-                                <RowDefinition Height="Auto" />
-                            </Grid.RowDefinitions>
-
-                            <!-- Stage colour strip + role icon -->
-                            <Grid Grid.Row="0" Margin="0,0,0,8">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
-                                <Border
-                                    Grid.Column="0"
-                                    Height="4" CornerRadius="2"
-                                    HorizontalAlignment="Left" Width="40"
-                                    Background="{Binding StageColor}" />
-                                <TextBlock
-                                    Grid.Column="1"
-                                    Text="{Binding RoleIcon}"
-                                    FontSize="18" VerticalAlignment="Center" />
-                            </Grid>
-
-                            <!-- Folder name -->
+                        <!-- Service name, description, status -->
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
                             <ui:TextBlock
-                                Grid.Row="1"
-                                Text="{Binding FolderName}"
-                                FontTypography="BodyStrong"
-                                Margin="0,0,0,4" />
-
-                            <!-- PNG count -->
-                            <StackPanel Grid.Row="2" Orientation="Horizontal"
-                                        VerticalAlignment="Center" Margin="0,4,0,8">
+                                Text="{DynamicResource LabelAutoExtractionService}"
+                                FontTypography="BodyStrong" />
+                            <ui:TextBlock
+                                Text="{DynamicResource LabelAutoExtractionDesc}"
+                                FontSize="11"
+                                Opacity="0.55"
+                                Margin="0,2,0,0" />
+                            <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
                                 <ui:TextBlock
-                                    Text="{Binding FileCount}"
-                                    FontSize="32" FontWeight="Bold"
-                                    Foreground="{Binding StageColor}" />
+                                    Text="{DynamicResource LabelStatus}"
+                                    FontSize="11"
+                                    Opacity="0.40"
+                                    Margin="0,0,4,0" />
                                 <ui:TextBlock
-                                    Text=" PNG"
-                                    FontSize="14" VerticalAlignment="Bottom"
-                                    Margin="4,0,0,4" Opacity="0.6" />
+                                    Text="{Binding ServiceStatusText}"
+                                    FontSize="11"
+                                    FontWeight="SemiBold">
+                                    <ui:TextBlock.Style>
+                                        <Style TargetType="ui:TextBlock">
+                                            <Setter Property="Foreground" Value="#777" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsWatching}" Value="True">
+                                                    <Setter Property="Foreground" Value="#81C784" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </ui:TextBlock.Style>
+                                </ui:TextBlock>
                             </StackPanel>
+                        </StackPanel>
 
-                            <!-- Open folder in Explorer -->
-                            <ui:Button
-                                Grid.Row="3"
-                                Content="{DynamicResource BtnOpenFolder}"
-                                Command="{Binding DataContext.OpenFolderCommand,
-                                    RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                CommandParameter="{Binding FullPath}"
-                                Icon="{ui:SymbolIcon Symbol=FolderOpen24}"
-                                Appearance="Secondary"
-                                HorizontalAlignment="Stretch" />
-                        </Grid>
-                    </ui:Card>
-                </DataTemplate>
-            </ItemsControl.ItemTemplate>
-        </ItemsControl>
+                        <!-- Start / Stop toggle -->
+                        <ui:Button
+                            Grid.Column="2"
+                            Content="{Binding ServiceToggleText}"
+                            Command="{Binding ToggleWatchingCommand}"
+                            Appearance="{Binding IsWatching, Converter={StaticResource BoolToAppearance}}"
+                            MinWidth="90"
+                            VerticalAlignment="Center" />
+                    </Grid>
+                </Border>
+
+                <!-- ── Extraction progress (while running) ───────────────── -->
+                <ui:Card
+                    Margin="0,0,0,10"
+                    Visibility="{Binding IsExtracting, Converter={StaticResource BoolToVis}}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,6">
+                            <ui:SymbolIcon Symbol="Image24" Margin="0,0,8,0" VerticalAlignment="Center" />
+                            <ui:TextBlock
+                                Text="{DynamicResource LabelExtracting}"
+                                FontTypography="BodyStrong" />
+                        </StackPanel>
+                        <ProgressBar
+                            Grid.Row="1"
+                            Value="{Binding ExtractionProgress}"
+                            Maximum="1.0"
+                            Height="6"
+                            Margin="0,0,0,4" />
+                        <ui:TextBlock
+                            Grid.Row="2"
+                            Text="{Binding ExtractionStatus}"
+                            Opacity="0.65"
+                            FontSize="11" />
+                    </Grid>
+                </ui:Card>
+
+                <!-- ── Last result (after completion) ────────────────────── -->
+                <ui:Card
+                    Visibility="{Binding ExtractionStatus, Converter={StaticResource NotEmptyToVis}}">
+                    <ui:TextBlock
+                        Text="{Binding ExtractionStatus}"
+                        Opacity="0.65"
+                        FontSize="11"
+                        Visibility="{Binding IsExtracting, Converter={StaticResource InverseBoolToVis}}" />
+                </ui:Card>
+
+            </StackPanel>
+        </ScrollViewer>
+
     </Grid>
 </UserControl>

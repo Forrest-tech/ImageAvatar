@@ -11,6 +11,9 @@
 
     <sys:String x:Key="BtnRefresh">Refresh</sys:String>
     <sys:String x:Key="BtnWatch">Watch</sys:String>
+    <sys:String x:Key="BtnOpenWorkspace">Open Workspace</sys:String>
+    <sys:String x:Key="BtnStartService">Start Service</sys:String>
+    <sys:String x:Key="BtnStopService">Stop Service</sys:String>
     <sys:String x:Key="BtnApply">Apply</sys:String>
     <sys:String x:Key="BtnOpenFolder">Open Folder</sys:String>
     <sys:String x:Key="BtnBrowse">Browse…</sys:String>
@@ -19,6 +22,12 @@
     <sys:String x:Key="BtnCancelBatch">Cancel</sys:String>
 
     <sys:String x:Key="LabelRootPath">Root Path</sys:String>
+    <sys:String x:Key="LabelServiceSection">Services</sys:String>
+    <sys:String x:Key="LabelAutoExtractionService">Auto Extraction Service</sys:String>
+    <sys:String x:Key="LabelAutoExtractionDesc">Monitors the queue folder and removes image backgrounds automatically</sys:String>
+    <sys:String x:Key="LabelStatus">Status: </sys:String>
+    <sys:String x:Key="LabelServiceRunning">Running</sys:String>
+    <sys:String x:Key="LabelServiceStopped">Stopped</sys:String>
     <sys:String x:Key="LabelDropHint">Drop a folder here to set as workspace root</sys:String>
     <sys:String x:Key="LabelExtracting">Extracting background…</sys:String>
     <sys:String x:Key="LabelModelLoaded">Model Ready</sys:String>

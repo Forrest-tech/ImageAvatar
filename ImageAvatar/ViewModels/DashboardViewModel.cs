@@ -1,9 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ImageAvatar.Contracts.Services;
-using ImageAvatar.Models;
 using ImageAvatar.Services;
-using System.Collections.ObjectModel;
 using System.IO;
 using System.Windows;
 
@@ -14,59 +12,54 @@ public partial class DashboardViewModel : ObservableObject
     private readonly IStorageService             _storage;
     private readonly IPipelineCoordinatorService _coordinator;
     private readonly IImageExtractionService     _extraction;
+    private readonly ILocalizationService        _localization;
     private readonly AppSettingsService          _settings;
 
-    // ── Folder display ─────────────────────────────────────────────────────
     [ObservableProperty] private string _rootPath;
     [ObservableProperty] private bool   _isWatching;
-
-    // ── Extraction progress ────────────────────────────────────────────────
     [ObservableProperty] private bool   _isExtracting;
-    [ObservableProperty] private double _extractionProgress;        // 0.0 – 1.0
+    [ObservableProperty] private double _extractionProgress;
     [ObservableProperty] private string _extractionStatus = string.Empty;
     [ObservableProperty] private string _currentFile      = string.Empty;
     [ObservableProperty] private bool   _isModelLoaded;
 
-    public ObservableCollection<FolderStatusItem> FolderItems { get; } = [];
+    public string ServiceStatusText => IsWatching ? GetResource("LabelServiceRunning") : GetResource("LabelServiceStopped");
+    public string ServiceToggleText => IsWatching ? GetResource("BtnStopService")      : GetResource("BtnStartService");
 
     public DashboardViewModel(
         IStorageService             storage,
         IPipelineCoordinatorService coordinator,
         IImageExtractionService     extraction,
+        ILocalizationService        localization,
         AppSettingsService          settings)
     {
-        _storage     = storage;
-        _coordinator = coordinator;
-        _extraction  = extraction;
-        _settings    = settings;
+        _storage      = storage;
+        _coordinator  = coordinator;
+        _extraction   = extraction;
+        _localization = localization;
+        _settings     = settings;
 
         _rootPath      = storage.RootPath;
         _isModelLoaded = extraction.IsModelLoaded;
 
-        _storage.FolderChanged          += OnFolderChanged;
-        _coordinator.ProgressChanged    += OnExtractionProgress;
-        _coordinator.FileCompleted      += OnFileCompleted;
+        _storage.FolderChanged       += OnFolderChanged;
+        _coordinator.ProgressChanged += OnExtractionProgress;
+        _coordinator.FileCompleted   += OnFileCompleted;
 
-        LoadFolders();
-    }
-
-    // ── Folder display ─────────────────────────────────────────────────────
-
-    private void LoadFolders()
-    {
-        FolderItems.Clear();
-        foreach (var f in _storage.Folders)
-            FolderItems.Add(new FolderStatusItem(f));
-    }
-
-    private void OnFolderChanged(object? sender, FolderChangedEventArgs e) =>
-        Application.Current.Dispatcher.Invoke(() =>
+        _localization.LanguageChanged += (_, _) =>
         {
-            var item = FolderItems.FirstOrDefault(i => i.FolderName == e.FolderName);
-            if (item is not null) item.FileCount = e.NewFileCount;
-        });
+            OnPropertyChanged(nameof(ServiceStatusText));
+            OnPropertyChanged(nameof(ServiceToggleText));
+        };
+    }
 
-    // ── Extraction progress callbacks ──────────────────────────────────────
+    partial void OnIsWatchingChanged(bool value)
+    {
+        OnPropertyChanged(nameof(ServiceStatusText));
+        OnPropertyChanged(nameof(ServiceToggleText));
+    }
+
+    private void OnFolderChanged(object? sender, FolderChangedEventArgs e) { }
 
     private void OnExtractionProgress(object? sender, ExtractionProgressEventArgs e)
     {
@@ -94,13 +87,10 @@ public partial class DashboardViewModel : ObservableObject
         });
     }
 
-    // ── Commands ───────────────────────────────────────────────────────────
-
     [RelayCommand]
     private void Refresh()
     {
         _storage.RefreshAll();
-        LoadFolders();
         IsModelLoaded = _extraction.IsModelLoaded;
     }
 
@@ -127,9 +117,20 @@ public partial class DashboardViewModel : ObservableObject
     {
         _storage.RootPath = RootPath;
         _storage.RefreshAll();
-        LoadFolders();
         _settings.WorkspaceRoot = RootPath;
         _settings.Save();
+    }
+
+    [RelayCommand]
+    private void BrowseSourceFolder()
+    {
+        var dialog = new Microsoft.Win32.OpenFolderDialog
+        {
+            Title            = GetResource("LabelRootPath"),
+            InitialDirectory = Directory.Exists(RootPath) ? RootPath : string.Empty
+        };
+        if (dialog.ShowDialog() == true)
+            RootPath = dialog.FolderName;
     }
 
     [RelayCommand]
@@ -138,39 +139,7 @@ public partial class DashboardViewModel : ObservableObject
         if (!string.IsNullOrEmpty(path) && Directory.Exists(path))
             System.Diagnostics.Process.Start("explorer.exe", path);
     }
-}
 
-// ── FolderStatusItem ───────────────────────────────────────────────────────
-
-public partial class FolderStatusItem : ObservableObject
-{
-    public string       FolderName { get; }
-    public string       LabelKey   { get; }
-    public PipelineStage Stage     { get; }
-    public FolderRole    Role      { get; }
-    public string       FullPath   { get; }
-
-    [ObservableProperty] private int  _fileCount;
-    [ObservableProperty] private bool _exists;
-
-    public string StageColor => Stage switch
-    {
-        PipelineStage.Extract  => "#4FC3F7",
-        PipelineStage.Refine   => "#81C784",
-        PipelineStage.Finalize => "#FFB74D",
-        _                      => "#FFFFFF"
-    };
-
-    public string RoleIcon => Role == FolderRole.Queue ? "⬇" : "✔";
-
-    public FolderStatusItem(PipelineFolder folder)
-    {
-        FolderName = folder.FolderName;
-        LabelKey   = folder.LabelKey;
-        Stage      = folder.Stage;
-        Role       = folder.Role;
-        FullPath   = folder.FullPath;
-        FileCount  = folder.FileCount;
-        Exists     = folder.Exists;
-    }
+    private static string GetResource(string key) =>
+        Application.Current.TryFindResource(key) as string ?? key;
 }

@@ -11,6 +11,9 @@
 
     <sys:String x:Key="BtnRefresh">Actualiser</sys:String>
     <sys:String x:Key="BtnWatch">Surveiller</sys:String>
+    <sys:String x:Key="BtnOpenWorkspace">Ouvrir l'espace de travail</sys:String>
+    <sys:String x:Key="BtnStartService">Démarrer</sys:String>
+    <sys:String x:Key="BtnStopService">Arrêter</sys:String>
     <sys:String x:Key="BtnApply">Appliquer</sys:String>
     <sys:String x:Key="BtnOpenFolder">Ouvrir le dossier</sys:String>
     <sys:String x:Key="BtnBrowse">Parcourir…</sys:String>
@@ -19,6 +22,12 @@
     <sys:String x:Key="BtnCancelBatch">Annuler</sys:String>
 
     <sys:String x:Key="LabelRootPath">Dossier racine</sys:String>
+    <sys:String x:Key="LabelServiceSection">Services</sys:String>
+    <sys:String x:Key="LabelAutoExtractionService">Service d'extraction automatique</sys:String>
+    <sys:String x:Key="LabelAutoExtractionDesc">Surveille la file d'extraction et supprime les fonds automatiquement</sys:String>
+    <sys:String x:Key="LabelStatus">État : </sys:String>
+    <sys:String x:Key="LabelServiceRunning">En cours</sys:String>
+    <sys:String x:Key="LabelServiceStopped">Arrêté</sys:String>
     <sys:String x:Key="LabelDropHint">Déposez un dossier ici pour définir le répertoire de travail</sys:String>
     <sys:String x:Key="LabelExtracting">Extraction en cours…</sys:String>
     <sys:String x:Key="LabelModelLoaded">Modèle prêt</sys:String>
