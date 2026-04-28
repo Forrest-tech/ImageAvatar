@@ -1,5 +1,6 @@
 using ImageAvatar.Models;
 using SkiaSharp;
+using SkiaSharp.Views.Desktop;
 using SkiaSharp.Views.WPF;
 using System.Windows;
 using System.Windows.Input;

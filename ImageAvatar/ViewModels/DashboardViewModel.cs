@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ImageAvatar.Contracts.Services;
+using ImageAvatar.Models;
 using ImageAvatar.Services;
 using System.IO;
 using System.Windows;
