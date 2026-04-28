@@ -27,7 +27,7 @@
             Title="{DynamicResource AppTitle}"
             Icon="pack://application:,,,/Assets/app.png" />
 
-        <!-- NavigationView with manual ContentControl navigation -->
+        <!-- NavigationView: provides the left sidebar (pane) -->
         <ui:NavigationView
             x:Name="RootNavigation"
             Grid.Row="1"
@@ -64,8 +64,19 @@
                     Tag="{x:Type pages:SettingsPage}" />
             </ui:NavigationView.FooterMenuItems>
 
-            <ContentControl x:Name="PageContent" />
-
         </ui:NavigationView>
+
+        <!--
+            ContentControl sits in the same Grid.Row="1" as NavigationView.
+            It renders on top (later in markup = higher Z-order) and its
+            Margin pushes it past the 220 px nav pane so it only covers the
+            content area — WPF-UI's internal Frame is never used.
+        -->
+        <ContentControl
+            x:Name="PageContent"
+            Grid.Row="1"
+            Margin="220,0,0,0"
+            Background="{DynamicResource ApplicationBackgroundBrush}" />
+
     </Grid>
 </ui:FluentWindow>

@@ -16,10 +16,7 @@ public partial class MainWindow : FluentWindow
     }
 
     private void OnNavigationViewLoaded(object sender, RoutedEventArgs e)
-    {
-        NavDashboard.IsSelected = true;
-        ShowPage(typeof(DashboardPage));
-    }
+        => ShowPage(typeof(DashboardPage));
 
     private void OnNavigationSelectionChanged(object sender, RoutedEventArgs e)
     {
