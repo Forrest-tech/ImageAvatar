@@ -3,6 +3,7 @@ using ImageAvatar.Services;
 using ImageAvatar.ViewModels;
 using ImageAvatar.Views;
 using ImageAvatar.Views.Pages;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Windows;
