@@ -12,23 +12,20 @@
 
     <UserControl.Resources>
 
-        <!-- Large blue button: identical to reference service-toggle cards -->
+        <!-- Large blue service-toggle button (matches reference) -->
         <Style x:Key="BigBlueBtnStyle" TargetType="Button">
-            <Setter Property="Background"              Value="#3575BE" />
-            <Setter Property="Foreground"              Value="White" />
-            <Setter Property="BorderThickness"         Value="0" />
-            <Setter Property="Height"                  Value="66" />
+            <Setter Property="Background"                 Value="#3575BE" />
+            <Setter Property="Foreground"                 Value="White" />
+            <Setter Property="BorderThickness"            Value="0" />
+            <Setter Property="Height"                     Value="66" />
             <Setter Property="HorizontalContentAlignment" Value="Center" />
-            <Setter Property="Cursor"                  Value="Hand" />
-            <Setter Property="FocusVisualStyle"        Value="{x:Null}" />
+            <Setter Property="Cursor"                     Value="Hand" />
+            <Setter Property="FocusVisualStyle"           Value="{x:Null}" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border x:Name="Bd"
-                                Background="{TemplateBinding Background}"
-                                CornerRadius="2">
-                            <ContentPresenter HorizontalAlignment="Center"
-                                              VerticalAlignment="Center" />
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}" CornerRadius="2">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
@@ -43,23 +40,20 @@
             </Setter>
         </Style>
 
-        <!-- Small blue button: Open Workspace -->
-        <Style x:Key="SmallBlueBtnStyle" TargetType="Button">
-            <Setter Property="Background"              Value="#3575BE" />
-            <Setter Property="Foreground"              Value="White" />
-            <Setter Property="BorderThickness"         Value="0" />
-            <Setter Property="Height"                  Value="30" />
+        <!-- Open-Workspace / secondary blue button -->
+        <Style x:Key="MedBlueBtnStyle" TargetType="Button">
+            <Setter Property="Background"                 Value="#3575BE" />
+            <Setter Property="Foreground"                 Value="White" />
+            <Setter Property="BorderThickness"            Value="0" />
+            <Setter Property="Height"                     Value="36" />
             <Setter Property="HorizontalContentAlignment" Value="Center" />
-            <Setter Property="Cursor"                  Value="Hand" />
-            <Setter Property="FocusVisualStyle"        Value="{x:Null}" />
+            <Setter Property="Cursor"                     Value="Hand" />
+            <Setter Property="FocusVisualStyle"           Value="{x:Null}" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border x:Name="Bd"
-                                Background="{TemplateBinding Background}"
-                                CornerRadius="2">
-                            <ContentPresenter HorizontalAlignment="Center"
-                                              VerticalAlignment="Center" />
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}" CornerRadius="2">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
@@ -74,14 +68,15 @@
             </Setter>
         </Style>
 
-        <!-- Compact secondary button for config row -->
-        <Style x:Key="CompactSecBtnStyle" TargetType="Button">
+        <!-- Small icon/text button for inline actions -->
+        <Style x:Key="SmallActionBtnStyle" TargetType="Button">
             <Setter Property="Background"      Value="#3A3A3C" />
             <Setter Property="Foreground"      Value="#CCCCCC" />
-            <Setter Property="BorderThickness" Value="1" />
             <Setter Property="BorderBrush"     Value="#555555" />
+            <Setter Property="BorderThickness" Value="1" />
             <Setter Property="Height"          Value="26" />
             <Setter Property="Padding"         Value="10,0" />
+            <Setter Property="FontSize"        Value="12" />
             <Setter Property="Cursor"          Value="Hand" />
             <Setter Property="FocusVisualStyle" Value="{x:Null}" />
             <Setter Property="Template">
@@ -113,86 +108,10 @@
           DragLeave="OnDragLeave"
           Drop="OnDrop">
 
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />   <!-- config row -->
-            <RowDefinition Height="*" />      <!-- main content -->
-        </Grid.RowDefinitions>
-
-        <!-- ── Top config bar: path + browse/apply/refresh ──────── -->
-        <Border Grid.Row="0"
-                Background="#252527"
-                BorderThickness="0,0,0,1"
-                BorderBrush="#404042"
-                Padding="12,6">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
-
-                <TextBlock Grid.Column="0"
-                           Text="{DynamicResource LabelRootPath}"
-                           Foreground="#AAAAAA"
-                           FontSize="12"
-                           VerticalAlignment="Center"
-                           Margin="0,0,8,0" />
-
-                <TextBox Grid.Column="1"
-                         Text="{Binding RootPath, UpdateSourceTrigger=PropertyChanged}"
-                         Background="#3A3A3C"
-                         Foreground="White"
-                         BorderBrush="#555555"
-                         BorderThickness="1"
-                         Padding="6,3"
-                         FontSize="12"
-                         VerticalContentAlignment="Center"
-                         VerticalAlignment="Center" />
-
-                <Button Grid.Column="2"
-                        Content="{DynamicResource BtnBrowse}"
-                        Command="{Binding BrowseSourceFolderCommand}"
-                        Style="{StaticResource CompactSecBtnStyle}"
-                        FontSize="12"
-                        Margin="6,0,0,0" />
-
-                <Button Grid.Column="3"
-                        Content="{DynamicResource BtnApply}"
-                        Command="{Binding ApplyRootPathCommand}"
-                        Style="{StaticResource CompactSecBtnStyle}"
-                        Background="#3575BE"
-                        BorderBrush="#3575BE"
-                        Foreground="White"
-                        FontSize="12"
-                        Margin="4,0,0,0" />
-
-                <Button Grid.Column="4"
-                        Content="📁"
-                        ToolTip="{DynamicResource BtnOpenFolder}"
-                        Command="{Binding OpenFolderCommand}"
-                        CommandParameter="{Binding RootPath}"
-                        Style="{StaticResource CompactSecBtnStyle}"
-                        FontSize="12"
-                        Margin="4,0,0,0" />
-
-                <Button Grid.Column="5"
-                        Content="🔄"
-                        ToolTip="{DynamicResource BtnRefresh}"
-                        Command="{Binding RefreshCommand}"
-                        Style="{StaticResource CompactSecBtnStyle}"
-                        FontSize="12"
-                        Margin="4,0,0,0" />
-            </Grid>
-        </Border>
-
-        <!-- ── Main content area ─────────────────────────────────── -->
-        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
             <StackPanel Margin="12,10,12,12">
 
-                <!-- Drag-drop overlay hint -->
+                <!-- ── Drag-drop overlay hint ───────────────────────────── -->
                 <Border x:Name="DropHintBorder"
                         Visibility="Collapsed"
                         BorderBrush="#4FC3F7"
@@ -200,42 +119,73 @@
                         CornerRadius="4"
                         Background="#0C4FC3F7"
                         Padding="12,8"
-                        Margin="0,0,0,8">
+                        Margin="0,0,0,10">
                     <TextBlock Text="{DynamicResource LabelDropHint}"
                                Foreground="#4FC3F7"
                                FontSize="12"
                                HorizontalAlignment="Center" />
                 </Border>
 
-                <!-- ── Open Workspace row ──────────────────────────── -->
-                <Grid Margin="0,0,0,12">
+                <!-- ── Row 1 : Open Workspace button + path ─────────────── -->
+                <Grid Margin="0,0,0,10">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" MinWidth="440" MaxWidth="480" />
-                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="440" />   <!-- blue button -->
+                        <ColumnDefinition Width="*" />     <!-- path text -->
+                        <ColumnDefinition Width="Auto" />  <!-- 浏览 -->
+                        <ColumnDefinition Width="Auto" />  <!-- 应用 -->
+                        <ColumnDefinition Width="Auto" />  <!-- refresh -->
                     </Grid.ColumnDefinitions>
 
+                    <!-- Open Workspace button -->
                     <Button Grid.Column="0"
                             Command="{Binding OpenFolderCommand}"
                             CommandParameter="{Binding RootPath}"
-                            Style="{StaticResource SmallBlueBtnStyle}">
-                        <TextBlock Text="{DynamicResource BtnOpenWorkspace}"
-                                   FontSize="13" />
+                            Style="{StaticResource MedBlueBtnStyle}">
+                        <TextBlock Text="{DynamicResource BtnOpenWorkspace}" FontSize="13" />
                     </Button>
 
+                    <!-- Current path display -->
                     <TextBlock Grid.Column="1"
                                Text="{Binding RootPath}"
                                Foreground="#CCCCCC"
                                FontSize="12"
                                VerticalAlignment="Center"
-                               Margin="14,0,0,0"
+                               Margin="14,0,10,0"
                                TextTrimming="CharacterEllipsis" />
+
+                    <!-- Browse path -->
+                    <Button Grid.Column="2"
+                            Content="{DynamicResource BtnBrowse}"
+                            Command="{Binding BrowseSourceFolderCommand}"
+                            Style="{StaticResource SmallActionBtnStyle}"
+                            Margin="0,0,4,0"
+                            VerticalAlignment="Center" />
+
+                    <!-- Apply path -->
+                    <Button Grid.Column="3"
+                            Content="{DynamicResource BtnApply}"
+                            Command="{Binding ApplyRootPathCommand}"
+                            Style="{StaticResource SmallActionBtnStyle}"
+                            Background="#3575BE"
+                            BorderBrush="#3575BE"
+                            Foreground="White"
+                            Margin="0,0,4,0"
+                            VerticalAlignment="Center" />
+
+                    <!-- Refresh -->
+                    <Button Grid.Column="4"
+                            Content="↻"
+                            ToolTip="{DynamicResource BtnRefresh}"
+                            Command="{Binding RefreshCommand}"
+                            Style="{StaticResource SmallActionBtnStyle}"
+                            VerticalAlignment="Center" />
                 </Grid>
 
-                <!-- ── Auto-extraction service toggle ─────────────── -->
+                <!-- ── Row 2 : Auto-extraction service toggle ────────────── -->
                 <Grid Margin="0,0,0,8">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto" MinWidth="440" MaxWidth="480" />
-                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="440" />   <!-- blue button -->
+                        <ColumnDefinition Width="Auto" />  <!-- status dot + text -->
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
 
@@ -251,9 +201,7 @@
                                 Orientation="Horizontal"
                                 VerticalAlignment="Center"
                                 Margin="18,0,0,0">
-                        <Ellipse Width="8" Height="8"
-                                 VerticalAlignment="Center"
-                                 Margin="0,0,6,0">
+                        <Ellipse Width="8" Height="8" VerticalAlignment="Center" Margin="0,0,6,0">
                             <Ellipse.Style>
                                 <Style TargetType="Ellipse">
                                     <Setter Property="Fill" Value="#666666" />
@@ -282,7 +230,7 @@
                     </StackPanel>
                 </Grid>
 
-                <!-- ── Model loaded badge ─────────────────────────── -->
+                <!-- ── Model Ready badge ──────────────────────────────────── -->
                 <Border HorizontalAlignment="Left"
                         Background="#1B5E20"
                         CornerRadius="3"
@@ -294,7 +242,7 @@
                                FontSize="11" />
                 </Border>
 
-                <!-- ── Extraction progress ────────────────────────── -->
+                <!-- ── Extraction progress ────────────────────────────────── -->
                 <Border Background="#2A2A2C"
                         CornerRadius="3"
                         Padding="12,10"
@@ -318,7 +266,7 @@
                     </StackPanel>
                 </Border>
 
-                <!-- ── Last result ────────────────────────────────── -->
+                <!-- ── Last result ─────────────────────────────────────────── -->
                 <Border Background="#2A2A2C"
                         CornerRadius="3"
                         Padding="12,8"
