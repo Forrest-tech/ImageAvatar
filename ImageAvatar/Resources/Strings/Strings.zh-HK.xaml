@@ -4,7 +4,7 @@
     xmlns:sys="clr-namespace:System;assembly=mscorlib">
 
     <sys:String x:Key="AppTitle">圖像頭像</sys:String>
-    <sys:String x:Key="NavDashboard">儀表板</sys:String>
+    <sys:String x:Key="NavDashboard">主控台</sys:String>
     <sys:String x:Key="NavBatch">批量處理</sys:String>
     <sys:String x:Key="NavQc">質檢審核</sys:String>
     <sys:String x:Key="NavSettings">設定</sys:String>

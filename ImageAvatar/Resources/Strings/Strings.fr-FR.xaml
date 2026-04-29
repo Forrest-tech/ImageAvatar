@@ -4,7 +4,7 @@
     xmlns:sys="clr-namespace:System;assembly=mscorlib">
 
     <sys:String x:Key="AppTitle">ImageAvatar</sys:String>
-    <sys:String x:Key="NavDashboard">Tableau de bord</sys:String>
+    <sys:String x:Key="NavDashboard">Console principale</sys:String>
     <sys:String x:Key="NavBatch">Traitement par lots</sys:String>
     <sys:String x:Key="NavQc">Contrôle qualité</sys:String>
     <sys:String x:Key="NavSettings">Paramètres</sys:String>

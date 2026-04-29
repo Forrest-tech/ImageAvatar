@@ -3,11 +3,10 @@ using ImageAvatar.Views.Pages;
 using System.Windows;
 using System.Windows.Controls;
 using Wpf.Ui.Appearance;
-using Wpf.Ui.Controls;
 
 namespace ImageAvatar.Views;
 
-public partial class MainWindow : FluentWindow
+public partial class MainWindow : Window
 {
     public MainWindow(MainWindowViewModel viewModel)
     {

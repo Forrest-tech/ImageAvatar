@@ -1,108 +1,98 @@
-<ui:FluentWindow
+<Window
     x:Class="ImageAvatar.Views.MainWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     xmlns:pages="clr-namespace:ImageAvatar.Views.Pages"
     mc:Ignorable="d"
-    Title="{Binding AppTitle}"
+    Title="{DynamicResource AppTitle}"
     Width="1024"
     Height="680"
     MinWidth="800"
     MinHeight="500"
-    ExtendsContentIntoTitleBar="True"
+    Background="#1C1C1E"
     WindowStartupLocation="CenterScreen">
 
-    <ui:FluentWindow.Resources>
-        <Style x:Key="TabNavStyle" TargetType="RadioButton">
-            <Setter Property="GroupName" Value="PageTabs" />
-            <Setter Property="Padding" Value="16,10" />
-            <Setter Property="Cursor" Value="Hand" />
+    <Window.Resources>
+        <!-- Flat compact tab button – matches reference image style -->
+        <Style x:Key="FlatTabStyle" TargetType="RadioButton">
+            <Setter Property="GroupName"        Value="PageTabs" />
+            <Setter Property="Cursor"           Value="Hand" />
             <Setter Property="FocusVisualStyle" Value="{x:Null}" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="RadioButton">
                         <Border x:Name="Bd"
                                 Background="Transparent"
-                                Padding="{TemplateBinding Padding}"
-                                BorderThickness="0,0,0,2"
-                                BorderBrush="Transparent">
+                                Padding="14,0">
                             <TextBlock x:Name="Txt"
                                        Text="{TemplateBinding Content}"
-                                       FontSize="13"
-                                       Foreground="#99FFFFFF"
+                                       FontSize="12"
+                                       Foreground="#AAAAAA"
                                        VerticalAlignment="Center" />
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsChecked" Value="True">
-                                <Setter TargetName="Bd" Property="BorderBrush" Value="#4A90E2" />
+                                <Setter TargetName="Bd"  Property="Background" Value="#3A3A3C" />
                                 <Setter TargetName="Txt" Property="Foreground" Value="White" />
                                 <Setter TargetName="Txt" Property="FontWeight" Value="SemiBold" />
                             </Trigger>
                             <MultiTrigger>
                                 <MultiTrigger.Conditions>
                                     <Condition Property="IsMouseOver" Value="True" />
-                                    <Condition Property="IsChecked" Value="False" />
+                                    <Condition Property="IsChecked"   Value="False" />
                                 </MultiTrigger.Conditions>
-                                <Setter TargetName="Bd" Property="Background" Value="#15FFFFFF" />
-                                <Setter TargetName="Txt" Property="Foreground" Value="#CCFFFFFF" />
+                                <Setter TargetName="Bd"  Property="Background" Value="#2C2C2E" />
+                                <Setter TargetName="Txt" Property="Foreground" Value="#CCCCCC" />
                             </MultiTrigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
         </Style>
-    </ui:FluentWindow.Resources>
+    </Window.Resources>
 
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
+            <RowDefinition Height="30" />   <!-- Tab bar -->
+            <RowDefinition Height="*" />    <!-- Content -->
         </Grid.RowDefinitions>
 
-        <!-- Title bar -->
-        <ui:TitleBar
-            Grid.Row="0"
-            Title="{DynamicResource AppTitle}"
-            Icon="pack://application:,,,/Assets/app.png" />
-
-        <!-- Top tab navigation bar -->
-        <Border Grid.Row="1"
-                Background="{DynamicResource ApplicationBackgroundBrush}"
+        <!-- ── Tab navigation bar ─────────────────────────────────── -->
+        <Border Grid.Row="0"
+                Background="#252527"
                 BorderThickness="0,0,0,1"
-                BorderBrush="#25FFFFFF">
-            <StackPanel Orientation="Horizontal" Margin="8,0">
+                BorderBrush="#404042">
+            <StackPanel Orientation="Horizontal">
                 <RadioButton x:Name="TabDashboard"
                              Content="{DynamicResource NavDashboard}"
-                             Style="{StaticResource TabNavStyle}"
+                             Style="{StaticResource FlatTabStyle}"
                              IsChecked="True"
                              Click="OnTabClick"
                              Tag="{x:Type pages:DashboardPage}" />
                 <RadioButton x:Name="TabBatch"
                              Content="{DynamicResource NavBatch}"
-                             Style="{StaticResource TabNavStyle}"
+                             Style="{StaticResource FlatTabStyle}"
                              Click="OnTabClick"
                              Tag="{x:Type pages:BatchPage}" />
                 <RadioButton x:Name="TabQc"
                              Content="{DynamicResource NavQc}"
-                             Style="{StaticResource TabNavStyle}"
+                             Style="{StaticResource FlatTabStyle}"
                              Click="OnTabClick"
                              Tag="{x:Type pages:QcPage}" />
                 <RadioButton x:Name="TabSettings"
                              Content="{DynamicResource NavSettings}"
-                             Style="{StaticResource TabNavStyle}"
+                             Style="{StaticResource FlatTabStyle}"
                              Click="OnTabClick"
                              Tag="{x:Type pages:SettingsPage}" />
             </StackPanel>
         </Border>
 
-        <!-- Page content area -->
+        <!-- ── Page content ──────────────────────────────────────── -->
         <ContentControl
             x:Name="PageContent"
-            Grid.Row="2"
-            Background="{DynamicResource ApplicationBackgroundBrush}" />
+            Grid.Row="1"
+            Background="#1C1C1E" />
     </Grid>
-</ui:FluentWindow>
+</Window>
