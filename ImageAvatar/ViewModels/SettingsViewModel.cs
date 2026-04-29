@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ImageAvatar.Contracts.Services;
 using ImageAvatar.Services;
+using System.IO;
 using Wpf.Ui.Appearance;
 
 namespace ImageAvatar.ViewModels;
@@ -11,6 +12,7 @@ public partial class SettingsViewModel : ObservableObject
     private readonly ILocalizationService    _localization;
     private readonly IImageExtractionService _extraction;
     private readonly AppSettingsService      _settings;
+    private readonly IStorageService         _storage;
 
     // ── Language / Theme ───────────────────────────────────────────────────
     [ObservableProperty] private string _selectedLanguage;
@@ -18,6 +20,9 @@ public partial class SettingsViewModel : ObservableObject
 
     public IReadOnlyList<string> SupportedLanguages => _localization.SupportedLanguages;
     public IReadOnlyList<string> ThemeNames { get; } = ["Dark", "Light"];
+
+    // ── Workspace ──────────────────────────────────────────────────────────
+    [ObservableProperty] private string _workspaceRoot;
 
     // ── Model ──────────────────────────────────────────────────────────────
     [ObservableProperty] private string _modelPath;
@@ -28,17 +33,43 @@ public partial class SettingsViewModel : ObservableObject
     public SettingsViewModel(
         ILocalizationService    localization,
         IImageExtractionService extraction,
-        AppSettingsService      settings)
+        AppSettingsService      settings,
+        IStorageService         storage)
     {
         _localization = localization;
         _extraction   = extraction;
         _settings     = settings;
+        _storage      = storage;
 
         _selectedLanguage   = localization.CurrentLanguage;
         _selectedThemeIndex = 0;
         _modelPath          = settings.ModelPath;
         _isModelLoaded      = extraction.IsModelLoaded;
         _modelStatus        = extraction.IsModelLoaded ? "✓ Loaded" : "Not loaded";
+        _workspaceRoot      = storage.RootPath;
+    }
+
+    // ── Workspace commands ─────────────────────────────────────────────────
+
+    [RelayCommand]
+    private void BrowseWorkspace()
+    {
+        var dialog = new Microsoft.Win32.OpenFolderDialog
+        {
+            Title            = "选择工作区根目录",
+            InitialDirectory = Directory.Exists(WorkspaceRoot) ? WorkspaceRoot : string.Empty
+        };
+        if (dialog.ShowDialog() == true)
+            WorkspaceRoot = dialog.FolderName;
+    }
+
+    [RelayCommand]
+    private void ApplyWorkspace()
+    {
+        _storage.RootPath        = WorkspaceRoot;
+        _settings.WorkspaceRoot  = WorkspaceRoot;
+        _settings.Save();
+        _storage.RefreshAll();
     }
 
     // ── Language command ───────────────────────────────────────────────────

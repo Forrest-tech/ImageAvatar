@@ -67,6 +67,9 @@
     <sys:String x:Key="FolderFinalizeQueue">File de finalisation</sys:String>
     <sys:String x:Key="FolderFinalizeDone">Finalisation terminée</sys:String>
 
+    <sys:String x:Key="SettingsWorkspaceHeader">Espace de travail</sys:String>
+    <sys:String x:Key="SettingsWorkspaceDesc">Définir le dossier racine pour le pipeline de traitement. Tous les sous-dossiers seront créés automatiquement.</sys:String>
+
     <sys:String x:Key="SettingsModelHeader">Modèle IA</sys:String>
     <sys:String x:Key="SettingsModelDesc">Sélectionner le fichier modèle U-2-Net ONNX (u2net.onnx) pour la suppression de fond.</sys:String>
     <sys:String x:Key="SettingsModelHint">Téléchargement : github.com/danielgatis/rembg → models/u2net.onnx</sys:String>

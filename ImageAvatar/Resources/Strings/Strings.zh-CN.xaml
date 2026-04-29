@@ -67,6 +67,9 @@
     <sys:String x:Key="FolderFinalizeQueue">成品队列</sys:String>
     <sys:String x:Key="FolderFinalizeDone">成品完成</sys:String>
 
+    <sys:String x:Key="SettingsWorkspaceHeader">工作区</sys:String>
+    <sys:String x:Key="SettingsWorkspaceDesc">设置图像处理管线的根工作目录，所有子文件夹将在此目录下自动创建。</sys:String>
+
     <sys:String x:Key="SettingsModelHeader">AI 模型</sys:String>
     <sys:String x:Key="SettingsModelDesc">选择 U-2-Net ONNX 模型文件（u2net.onnx）用于背景移除。</sys:String>
     <sys:String x:Key="SettingsModelHint">下载地址：github.com/danielgatis/rembg → models/u2net.onnx</sys:String>

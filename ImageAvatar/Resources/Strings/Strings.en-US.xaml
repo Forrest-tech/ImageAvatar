@@ -67,6 +67,9 @@
     <sys:String x:Key="FolderFinalizeQueue">Finalize Queue</sys:String>
     <sys:String x:Key="FolderFinalizeDone">Finalize Done</sys:String>
 
+    <sys:String x:Key="SettingsWorkspaceHeader">Workspace</sys:String>
+    <sys:String x:Key="SettingsWorkspaceDesc">Set the root workspace folder for the processing pipeline. All sub-folders will be created automatically under this path.</sys:String>
+
     <sys:String x:Key="SettingsModelHeader">AI Model</sys:String>
     <sys:String x:Key="SettingsModelDesc">Select the U-2-Net ONNX model file (u2net.onnx) for background removal.</sys:String>
     <sys:String x:Key="SettingsModelHint">Download from: github.com/danielgatis/rembg → models/u2net.onnx</sys:String>

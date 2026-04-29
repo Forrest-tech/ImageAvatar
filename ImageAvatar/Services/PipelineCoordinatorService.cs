@@ -14,8 +14,9 @@ public sealed class PipelineCoordinatorService : IPipelineCoordinatorService, ID
 {
     private readonly IStorageService           _storage;
     private readonly IImageExtractionService   _extraction;
-    private readonly ConcurrentQueue<string>   _queue       = new();
-    private readonly SemaphoreSlim             _gate        = new(1, 1);
+    private readonly ILogService               _log;
+    private readonly ConcurrentQueue<string>   _queue = new();
+    private readonly SemaphoreSlim             _gate  = new(1, 1);
 
     private FileSystemWatcher? _watcher;
     private CancellationTokenSource _cts = new();
@@ -27,10 +28,12 @@ public sealed class PipelineCoordinatorService : IPipelineCoordinatorService, ID
 
     public PipelineCoordinatorService(
         IStorageService storage,
-        IImageExtractionService extraction)
+        IImageExtractionService extraction,
+        ILogService log)
     {
         _storage    = storage;
         _extraction = extraction;
+        _log        = log;
     }
 
     // ── Start / Stop ───────────────────────────────────────────────────────
@@ -46,13 +49,15 @@ public sealed class PipelineCoordinatorService : IPipelineCoordinatorService, ID
 
         _watcher = new FileSystemWatcher(inputFolder)
         {
-            Filter               = "*.*",
-            NotifyFilter         = NotifyFilters.FileName | NotifyFilters.CreationTime,
+            Filter                = "*.*",
+            NotifyFilter          = NotifyFilters.FileName | NotifyFilters.CreationTime,
             IncludeSubdirectories = false,
-            EnableRaisingEvents  = true
+            EnableRaisingEvents   = true
         };
 
         _watcher.Created += OnFileCreated;
+
+        _log.Log($"监控目录: {inputFolder}");
 
         // Process any files already sitting in the queue folder
         EnqueueExisting(inputFolder);
@@ -78,14 +83,21 @@ public sealed class PipelineCoordinatorService : IPipelineCoordinatorService, ID
         if (!ImageExtractionService.IsSupported(e.FullPath)) return;
 
         _queue.Enqueue(e.FullPath);
+        _log.Log($"排队: {Path.GetFileName(e.FullPath)}");
         _ = DrainQueueAsync();
     }
 
     private void EnqueueExisting(string folder)
     {
-        foreach (var file in Directory.EnumerateFiles(folder)
-                 .Where(ImageExtractionService.IsSupported))
+        var existing = Directory.EnumerateFiles(folder)
+            .Where(ImageExtractionService.IsSupported)
+            .ToList();
+
+        foreach (var file in existing)
             _queue.Enqueue(file);
+
+        if (existing.Count > 0)
+            _log.Log($"发现 {existing.Count} 个待处理文件");
     }
 
     // ── Queue drain loop (one file at a time) ──────────────────────────────
@@ -104,9 +116,16 @@ public sealed class PipelineCoordinatorService : IPipelineCoordinatorService, ID
                 ct.ThrowIfCancellationRequested();
 
                 if (!File.Exists(filePath)) continue;
-                if (!_extraction.IsModelLoaded)  continue;
+                if (!_extraction.IsModelLoaded)
+                {
+                    _log.Log("模型未加载，跳过提取");
+                    continue;
+                }
 
+                var fileName     = Path.GetFileName(filePath);
                 var outputFolder = GetFolder("01_提图完成");
+
+                _log.Log($"开始提取: {fileName}");
 
                 var progress = new Progress<double>(pct =>
                     ProgressChanged?.Invoke(this, new ExtractionProgressEventArgs
@@ -126,6 +145,7 @@ public sealed class PipelineCoordinatorService : IPipelineCoordinatorService, ID
                 }
                 catch (OperationCanceledException)
                 {
+                    _log.Log($"提取已取消: {fileName}");
                     break;
                 }
 

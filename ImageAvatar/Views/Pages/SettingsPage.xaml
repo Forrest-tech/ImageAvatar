@@ -17,6 +17,49 @@
             FontTypography="TitleLarge"
             Margin="0,0,0,24" />
 
+        <!-- ── Workspace ─────────────────────────────────────────────── -->
+        <ui:CardExpander
+            Header="{DynamicResource SettingsWorkspaceHeader}"
+            Icon="{ui:SymbolIcon Symbol=Folder24}"
+            IsExpanded="True"
+            Margin="0,0,0,12">
+            <StackPanel Margin="0,8,0,0">
+
+                <ui:TextBlock
+                    Text="{DynamicResource SettingsWorkspaceDesc}"
+                    Opacity="0.7"
+                    Margin="0,0,0,10" />
+
+                <Grid Margin="0,0,0,4">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <ui:TextBox
+                        Grid.Column="0"
+                        Text="{Binding WorkspaceRoot, UpdateSourceTrigger=PropertyChanged}"
+                        PlaceholderText="D:\workspace"
+                        VerticalAlignment="Center" />
+                    <ui:Button
+                        Grid.Column="1"
+                        Content="{DynamicResource BtnBrowse}"
+                        Command="{Binding BrowseWorkspaceCommand}"
+                        Appearance="Secondary"
+                        Margin="8,0,0,0"
+                        VerticalAlignment="Center" />
+                    <ui:Button
+                        Grid.Column="2"
+                        Content="{DynamicResource BtnApply}"
+                        Command="{Binding ApplyWorkspaceCommand}"
+                        Appearance="Primary"
+                        Margin="8,0,0,0"
+                        VerticalAlignment="Center" />
+                </Grid>
+
+            </StackPanel>
+        </ui:CardExpander>
+
         <!-- ── AI Model ──────────────────────────────────────────────── -->
         <ui:CardExpander
             Header="{DynamicResource SettingsModelHeader}"
