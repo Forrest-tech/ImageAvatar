@@ -25,6 +25,7 @@
     <sys:String x:Key="LabelServiceSection">Services</sys:String>
     <sys:String x:Key="LabelAutoExtractionService">Service d'extraction automatique</sys:String>
     <sys:String x:Key="LabelAutoExtractionDesc">Surveille la file d'extraction et supprime les fonds automatiquement</sys:String>
+    <sys:String x:Key="LabelToggleAutoExtractionService">Démarrer / Arrêter le service d'extraction</sys:String>
     <sys:String x:Key="LabelStatus">État : </sys:String>
     <sys:String x:Key="LabelServiceRunning">En cours</sys:String>
     <sys:String x:Key="LabelServiceStopped">Arrêté</sys:String>

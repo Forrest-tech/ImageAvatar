@@ -25,6 +25,7 @@
     <sys:String x:Key="LabelServiceSection">Services</sys:String>
     <sys:String x:Key="LabelAutoExtractionService">Auto Extraction Service</sys:String>
     <sys:String x:Key="LabelAutoExtractionDesc">Monitors the queue folder and removes image backgrounds automatically</sys:String>
+    <sys:String x:Key="LabelToggleAutoExtractionService">Start / Stop  Auto Extraction Service</sys:String>
     <sys:String x:Key="LabelStatus">Status: </sys:String>
     <sys:String x:Key="LabelServiceRunning">Running</sys:String>
     <sys:String x:Key="LabelServiceStopped">Stopped</sys:String>

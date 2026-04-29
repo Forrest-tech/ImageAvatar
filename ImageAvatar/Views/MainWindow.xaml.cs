@@ -1,6 +1,7 @@
 using ImageAvatar.ViewModels;
 using ImageAvatar.Views.Pages;
 using System.Windows;
+using System.Windows.Controls;
 using Wpf.Ui.Appearance;
 using Wpf.Ui.Controls;
 
@@ -13,19 +14,15 @@ public partial class MainWindow : FluentWindow
         DataContext = viewModel;
         InitializeComponent();
         ApplicationThemeManager.Apply(ApplicationTheme.Dark);
+        ShowPage(typeof(DashboardPage));
     }
 
-    private void OnNavigationViewLoaded(object sender, RoutedEventArgs e)
-        => ShowPage(typeof(DashboardPage));
-
-    private void OnNavigationSelectionChanged(object sender, RoutedEventArgs e)
+    private void OnTabClick(object sender, RoutedEventArgs e)
     {
-        if (RootNavigation.SelectedItem is NavigationViewItem { Tag: Type pageType })
+        if (sender is RadioButton { Tag: Type pageType })
             ShowPage(pageType);
     }
 
     private void ShowPage(Type pageType)
-    {
-        PageContent.Content = App.Services.GetService(pageType);
-    }
+        => PageContent.Content = App.Services.GetService(pageType);
 }

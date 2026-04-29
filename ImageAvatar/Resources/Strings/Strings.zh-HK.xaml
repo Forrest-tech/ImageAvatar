@@ -25,6 +25,7 @@
     <sys:String x:Key="LabelServiceSection">服務管理</sys:String>
     <sys:String x:Key="LabelAutoExtractionService">自動提圖服務</sys:String>
     <sys:String x:Key="LabelAutoExtractionDesc">監控提圖佇列，自動移除圖像背景</sys:String>
+    <sys:String x:Key="LabelToggleAutoExtractionService">啟動/停止 自動提圖服務</sys:String>
     <sys:String x:Key="LabelStatus">狀態：</sys:String>
     <sys:String x:Key="LabelServiceRunning">運行中</sys:String>
     <sys:String x:Key="LabelServiceStopped">已停止</sys:String>

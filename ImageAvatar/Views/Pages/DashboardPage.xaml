@@ -9,6 +9,70 @@
     mc:Ignorable="d"
     d:DataContext="{d:DesignInstance Type=vm:DashboardViewModel}">
 
+    <UserControl.Resources>
+
+        <!-- Large blue service toggle button -->
+        <Style x:Key="ServiceBtnStyle" TargetType="Button">
+            <Setter Property="Background" Value="#2A4BB5" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Height" Value="56" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="4"
+                                Padding="20,0">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#3A5BC8" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#1A3A9E" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Open Workspace button (smaller blue) -->
+        <Style x:Key="WorkspaceBtnStyle" TargetType="Button">
+            <Setter Property="Background" Value="#2A4BB5" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Height" Value="34" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="3"
+                                Padding="16,0">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#3A5BC8" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#1A3A9E" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+    </UserControl.Resources>
+
     <Grid AllowDrop="True"
           DragOver="OnDragOver"
           DragEnter="OnDragEnter"
@@ -16,95 +80,90 @@
           Drop="OnDrop">
 
         <ScrollViewer VerticalScrollBarVisibility="Auto">
-            <StackPanel Margin="24,16,24,24" MaxWidth="680" HorizontalAlignment="Left">
+            <StackPanel Margin="24,16,24,24">
 
-                <!-- ── Header ────────────────────────────────────────────── -->
-                <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
+                <!-- ── Root path configuration ───────────────────────────────── -->
+                <Grid Margin="0,0,0,14">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
                     <ui:TextBlock
-                        Text="{DynamicResource NavDashboard}"
-                        FontTypography="TitleLarge"
+                        Grid.Column="0"
+                        Text="{DynamicResource LabelRootPath}"
                         VerticalAlignment="Center"
-                        Margin="0,0,16,0" />
-                    <ui:Button
-                        Content="{DynamicResource BtnRefresh}"
-                        Command="{Binding RefreshCommand}"
-                        Icon="{ui:SymbolIcon Symbol=ArrowSync24}"
-                        Appearance="Secondary"
+                        Margin="0,0,12,0" />
+                    <ui:TextBox
+                        Grid.Column="1"
+                        Text="{Binding RootPath, UpdateSourceTrigger=PropertyChanged}"
+                        PlaceholderText="{DynamicResource LabelDropHint}"
                         VerticalAlignment="Center" />
-                    <Border
-                        Background="#1B5E20"
-                        CornerRadius="4"
-                        Padding="8,3"
-                        Margin="12,0,0,0"
+                    <ui:Button
+                        Grid.Column="2"
+                        Content="{DynamicResource BtnBrowse}"
+                        Command="{Binding BrowseSourceFolderCommand}"
+                        Appearance="Secondary"
+                        Margin="8,0,0,0"
+                        VerticalAlignment="Center" />
+                    <ui:Button
+                        Grid.Column="3"
+                        Content="{DynamicResource BtnApply}"
+                        Command="{Binding ApplyRootPathCommand}"
+                        Appearance="Primary"
+                        Margin="4,0,0,0"
+                        VerticalAlignment="Center" />
+                    <ui:Button
+                        Grid.Column="4"
+                        Icon="{ui:SymbolIcon Symbol=FolderOpen24}"
+                        ToolTip="{DynamicResource BtnOpenFolder}"
+                        Command="{Binding OpenFolderCommand}"
+                        CommandParameter="{Binding RootPath}"
+                        Appearance="Secondary"
+                        Margin="4,0,0,0"
+                        VerticalAlignment="Center" />
+                    <ui:Button
+                        Grid.Column="5"
+                        Icon="{ui:SymbolIcon Symbol=ArrowSync24}"
+                        ToolTip="{DynamicResource BtnRefresh}"
+                        Command="{Binding RefreshCommand}"
+                        Appearance="Secondary"
+                        Margin="4,0,0,0"
+                        VerticalAlignment="Center" />
+                </Grid>
+
+                <!-- ── Open Workspace row: button + path display ──────────────── -->
+                <Grid Margin="0,0,0,16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="220" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <Button
+                        Grid.Column="0"
+                        Command="{Binding OpenFolderCommand}"
+                        CommandParameter="{Binding RootPath}"
+                        Style="{StaticResource WorkspaceBtnStyle}">
+                        <TextBlock
+                            Text="{DynamicResource BtnOpenWorkspace}"
+                            FontSize="13" />
+                    </Button>
+
+                    <TextBlock
+                        Grid.Column="1"
+                        Text="{Binding RootPath}"
                         VerticalAlignment="Center"
-                        Visibility="{Binding IsModelLoaded, Converter={StaticResource BoolToVis}}">
-                        <StackPanel Orientation="Horizontal">
-                            <ui:SymbolIcon Symbol="CheckmarkCircle24" FontSize="12"
-                                           Foreground="#81C784" Margin="0,0,5,0" />
-                            <ui:TextBlock Text="{DynamicResource LabelModelLoaded}" FontSize="11" />
-                        </StackPanel>
-                    </Border>
-                </StackPanel>
+                        Margin="16,0,0,0"
+                        Opacity="0.65"
+                        FontSize="13"
+                        TextTrimming="CharacterEllipsis" />
+                </Grid>
 
-                <!-- ── Workspace directory ───────────────────────────────── -->
-                <ui:Card Margin="0,0,0,12">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-                        <ui:TextBlock
-                            Grid.Column="0"
-                            Text="{DynamicResource LabelRootPath}"
-                            VerticalAlignment="Center"
-                            Margin="0,0,12,0" />
-                        <ui:TextBox
-                            Grid.Column="1"
-                            Text="{Binding RootPath, UpdateSourceTrigger=PropertyChanged}"
-                            PlaceholderText="{DynamicResource LabelDropHint}"
-                            VerticalAlignment="Center" />
-                        <ui:Button
-                            Grid.Column="2"
-                            Content="{DynamicResource BtnBrowse}"
-                            Command="{Binding BrowseSourceFolderCommand}"
-                            Appearance="Secondary"
-                            Margin="8,0,0,0"
-                            VerticalAlignment="Center" />
-                        <ui:Button
-                            Grid.Column="3"
-                            Content="{DynamicResource BtnApply}"
-                            Command="{Binding ApplyRootPathCommand}"
-                            Appearance="Primary"
-                            Margin="4,0,0,0"
-                            VerticalAlignment="Center" />
-                        <ui:Button
-                            Grid.Column="4"
-                            Icon="{ui:SymbolIcon Symbol=FolderOpen24}"
-                            ToolTip="{DynamicResource BtnOpenFolder}"
-                            Command="{Binding OpenFolderCommand}"
-                            CommandParameter="{Binding RootPath}"
-                            Appearance="Secondary"
-                            Margin="4,0,0,0"
-                            VerticalAlignment="Center" />
-                    </Grid>
-                </ui:Card>
-
-                <!-- ── Open workspace button ─────────────────────────────── -->
-                <ui:Button
-                    Content="{DynamicResource BtnOpenWorkspace}"
-                    Command="{Binding OpenFolderCommand}"
-                    CommandParameter="{Binding RootPath}"
-                    Icon="{ui:SymbolIcon Symbol=FolderOpen24}"
-                    Appearance="Secondary"
-                    HorizontalAlignment="Stretch"
-                    HorizontalContentAlignment="Center"
-                    Padding="0,12"
-                    Margin="0,0,0,16" />
-
-                <!-- ── Drag-and-drop hint (shown while dragging) ─────────── -->
+                <!-- ── Drag-and-drop hint ────────────────────────────────────── -->
                 <Border
                     x:Name="DropHintBorder"
                     Visibility="Collapsed"
@@ -113,7 +172,7 @@
                     CornerRadius="6"
                     Background="#0C4FC3F7"
                     Padding="12,10"
-                    Margin="0,0,0,12">
+                    Margin="0,0,0,14">
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                         <ui:SymbolIcon Symbol="FolderArrowRight24" Margin="0,0,8,0" Foreground="#4FC3F7" />
                         <ui:TextBlock
@@ -123,89 +182,69 @@
                     </StackPanel>
                 </Border>
 
-                <!-- ── Services section header ───────────────────────────── -->
-                <ui:TextBlock
-                    Text="{DynamicResource LabelServiceSection}"
-                    FontTypography="BodyStrong"
-                    Opacity="0.50"
-                    Margin="0,0,0,8" />
-
-                <!-- ── Auto-extraction service card ──────────────────────── -->
+                <!-- ── Model Ready badge ─────────────────────────────────────── -->
                 <Border
-                    CornerRadius="8"
-                    Margin="0,0,0,8"
-                    Padding="16,14">
-                    <Border.Style>
-                        <Style TargetType="Border">
-                            <Setter Property="Background" Value="#1E1E1E" />
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding IsWatching}" Value="True">
-                                    <Setter Property="Background" Value="#0D2A1A" />
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Border.Style>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-
-                        <!-- Running indicator dot -->
-                        <Ellipse
-                            Grid.Column="0"
-                            Width="10" Height="10"
-                            Fill="{Binding IsWatching, Converter={StaticResource BoolToBrush}}"
-                            VerticalAlignment="Center"
-                            Margin="0,0,14,0" />
-
-                        <!-- Service name, description, status -->
-                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                            <ui:TextBlock
-                                Text="{DynamicResource LabelAutoExtractionService}"
-                                FontTypography="BodyStrong" />
-                            <ui:TextBlock
-                                Text="{DynamicResource LabelAutoExtractionDesc}"
-                                FontSize="11"
-                                Opacity="0.55"
-                                Margin="0,2,0,0" />
-                            <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
-                                <ui:TextBlock
-                                    Text="{DynamicResource LabelStatus}"
-                                    FontSize="11"
-                                    Opacity="0.40"
-                                    Margin="0,0,4,0" />
-                                <ui:TextBlock
-                                    Text="{Binding ServiceStatusText}"
-                                    FontSize="11"
-                                    FontWeight="SemiBold">
-                                    <ui:TextBlock.Style>
-                                        <Style TargetType="ui:TextBlock">
-                                            <Setter Property="Foreground" Value="#777" />
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding IsWatching}" Value="True">
-                                                    <Setter Property="Foreground" Value="#81C784" />
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </ui:TextBlock.Style>
-                                </ui:TextBlock>
-                            </StackPanel>
-                        </StackPanel>
-
-                        <!-- Start / Stop toggle -->
-                        <ui:Button
-                            Grid.Column="2"
-                            Content="{Binding ServiceToggleText}"
-                            Command="{Binding ToggleWatchingCommand}"
-                            Appearance="{Binding IsWatching, Converter={StaticResource BoolToAppearance}}"
-                            MinWidth="90"
-                            VerticalAlignment="Center" />
-                    </Grid>
+                    Background="#1B5E20"
+                    CornerRadius="4"
+                    Padding="8,4"
+                    Margin="0,0,0,16"
+                    HorizontalAlignment="Left"
+                    Visibility="{Binding IsModelLoaded, Converter={StaticResource BoolToVis}}">
+                    <StackPanel Orientation="Horizontal">
+                        <ui:SymbolIcon Symbol="CheckmarkCircle24" FontSize="12"
+                                       Foreground="#81C784" Margin="0,0,6,0" />
+                        <ui:TextBlock Text="{DynamicResource LabelModelLoaded}" FontSize="11" />
+                    </StackPanel>
                 </Border>
 
-                <!-- ── Extraction progress (while running) ───────────────── -->
+                <!-- ── Auto-extraction service toggle ───────────────────────── -->
+                <Grid Margin="0,0,0,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" MaxWidth="520" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Large blue toggle button -->
+                    <Button
+                        Grid.Column="0"
+                        Command="{Binding ToggleWatchingCommand}"
+                        Style="{StaticResource ServiceBtnStyle}">
+                        <TextBlock
+                            Text="{DynamicResource LabelToggleAutoExtractionService}"
+                            FontSize="14"
+                            FontWeight="SemiBold" />
+                    </Button>
+
+                    <!-- Status indicator -->
+                    <StackPanel
+                        Grid.Column="1"
+                        Orientation="Horizontal"
+                        VerticalAlignment="Center"
+                        Margin="20,0,0,0">
+                        <Ellipse
+                            Width="9" Height="9"
+                            Fill="{Binding IsWatching, Converter={StaticResource BoolToBrush}}"
+                            VerticalAlignment="Center"
+                            Margin="0,0,8,0" />
+                        <TextBlock
+                            Text="{Binding ServiceStatusText}"
+                            VerticalAlignment="Center"
+                            FontSize="13">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Foreground" Value="#888888" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsWatching}" Value="True">
+                                            <Setter Property="Foreground" Value="#81C784" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </StackPanel>
+                </Grid>
+
+                <!-- ── Extraction progress (while running) ───────────────────── -->
                 <ui:Card
                     Margin="0,0,0,10"
                     Visibility="{Binding IsExtracting, Converter={StaticResource BoolToVis}}">
@@ -235,7 +274,7 @@
                     </Grid>
                 </ui:Card>
 
-                <!-- ── Last result (after completion) ────────────────────── -->
+                <!-- ── Last result (after completion) ────────────────────────── -->
                 <ui:Card
                     Visibility="{Binding ExtractionStatus, Converter={StaticResource NotEmptyToVis}}">
                     <ui:TextBlock
