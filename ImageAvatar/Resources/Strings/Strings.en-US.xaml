@@ -8,6 +8,7 @@
     <sys:String x:Key="NavBatch">Batch Processing</sys:String>
     <sys:String x:Key="NavQc">QC Review</sys:String>
     <sys:String x:Key="NavSettings">Settings</sys:String>
+    <sys:String x:Key="NavConsole">Console</sys:String>
 
     <sys:String x:Key="BtnRefresh">Refresh</sys:String>
     <sys:String x:Key="BtnWatch">Watch</sys:String>
@@ -29,6 +30,7 @@
     <sys:String x:Key="LabelStatus">Status: </sys:String>
     <sys:String x:Key="LabelServiceRunning">Running</sys:String>
     <sys:String x:Key="LabelServiceStopped">Stopped</sys:String>
+    <sys:String x:Key="BtnClearLog">Clear Log</sys:String>
     <sys:String x:Key="LabelDropHint">Drop a folder here to set as workspace root</sys:String>
     <sys:String x:Key="LabelExtracting">Extracting background…</sys:String>
     <sys:String x:Key="LabelModelLoaded">Model Ready</sys:String>

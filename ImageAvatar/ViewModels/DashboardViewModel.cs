@@ -15,6 +15,7 @@ public partial class DashboardViewModel : ObservableObject
     private readonly IImageExtractionService     _extraction;
     private readonly ILocalizationService        _localization;
     private readonly AppSettingsService          _settings;
+    private readonly ILogService                 _log;
 
     [ObservableProperty] private string _rootPath;
     [ObservableProperty] private bool   _isWatching;
@@ -32,13 +33,15 @@ public partial class DashboardViewModel : ObservableObject
         IPipelineCoordinatorService coordinator,
         IImageExtractionService     extraction,
         ILocalizationService        localization,
-        AppSettingsService          settings)
+        AppSettingsService          settings,
+        ILogService                 log)
     {
         _storage      = storage;
         _coordinator  = coordinator;
         _extraction   = extraction;
         _localization = localization;
         _settings     = settings;
+        _log          = log;
 
         _rootPath      = storage.RootPath;
         _isModelLoaded = extraction.IsModelLoaded;
@@ -82,9 +85,13 @@ public partial class DashboardViewModel : ObservableObject
         {
             IsExtracting       = false;
             ExtractionProgress = 0;
-            ExtractionStatus   = e.Success
-                ? $"✓ {Path.GetFileName(e.SourcePath)}  ({e.Elapsed.TotalSeconds:F1}s)"
-                : $"✗ {Path.GetFileName(e.SourcePath)}: {e.ErrorMessage}";
+            var fileName = Path.GetFileName(e.SourcePath);
+            ExtractionStatus = e.Success
+                ? $"✓ {fileName}  ({e.Elapsed.TotalSeconds:F1}s)"
+                : $"✗ {fileName}: {e.ErrorMessage}";
+            _log.Log(e.Success
+                ? $"提取完成: {fileName} ({e.Elapsed.TotalSeconds:F1}s)"
+                : $"提取失败: {fileName} - {e.ErrorMessage}");
         });
     }
 
@@ -93,6 +100,7 @@ public partial class DashboardViewModel : ObservableObject
     {
         _storage.RefreshAll();
         IsModelLoaded = _extraction.IsModelLoaded;
+        _log.Log("工作区已刷新");
     }
 
     [RelayCommand]
@@ -103,6 +111,7 @@ public partial class DashboardViewModel : ObservableObject
             _storage.StopWatching();
             _coordinator.Stop();
             IsWatching = false;
+            _log.Log("自动提图服务已停止");
         }
         else
         {
@@ -110,6 +119,7 @@ public partial class DashboardViewModel : ObservableObject
             _coordinator.Start();
             IsWatching    = true;
             IsModelLoaded = _extraction.IsModelLoaded;
+            _log.Log("自动提图服务已启动");
         }
     }
 
@@ -120,6 +130,7 @@ public partial class DashboardViewModel : ObservableObject
         _storage.RefreshAll();
         _settings.WorkspaceRoot = RootPath;
         _settings.Save();
+        _log.Log($"工作区根目录已设置: {RootPath}");
     }
 
     [RelayCommand]
@@ -131,7 +142,10 @@ public partial class DashboardViewModel : ObservableObject
             InitialDirectory = Directory.Exists(RootPath) ? RootPath : string.Empty
         };
         if (dialog.ShowDialog() == true)
+        {
             RootPath = dialog.FolderName;
+            ApplyRootPath();
+        }
     }
 
     [RelayCommand]

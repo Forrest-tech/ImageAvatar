@@ -8,6 +8,7 @@
     <sys:String x:Key="NavBatch">Traitement par lots</sys:String>
     <sys:String x:Key="NavQc">Contrôle qualité</sys:String>
     <sys:String x:Key="NavSettings">Paramètres</sys:String>
+    <sys:String x:Key="NavConsole">Console</sys:String>
 
     <sys:String x:Key="BtnRefresh">Actualiser</sys:String>
     <sys:String x:Key="BtnWatch">Surveiller</sys:String>
@@ -29,6 +30,7 @@
     <sys:String x:Key="LabelStatus">État : </sys:String>
     <sys:String x:Key="LabelServiceRunning">En cours</sys:String>
     <sys:String x:Key="LabelServiceStopped">Arrêté</sys:String>
+    <sys:String x:Key="BtnClearLog">Effacer</sys:String>
     <sys:String x:Key="LabelDropHint">Déposez un dossier ici pour définir le répertoire de travail</sys:String>
     <sys:String x:Key="LabelExtracting">Extraction en cours…</sys:String>
     <sys:String x:Key="LabelModelLoaded">Modèle prêt</sys:String>

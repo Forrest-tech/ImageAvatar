@@ -9,13 +9,12 @@
     Title="{DynamicResource AppTitle}"
     Width="1024"
     Height="680"
-    MinWidth="800"
+    MinWidth="860"
     MinHeight="500"
     Background="#1C1C1E"
     WindowStartupLocation="CenterScreen">
 
     <Window.Resources>
-        <!-- Flat compact tab button – matches reference image style -->
         <Style x:Key="FlatTabStyle" TargetType="RadioButton">
             <Setter Property="GroupName"        Value="PageTabs" />
             <Setter Property="Cursor"           Value="Hand" />
@@ -23,9 +22,7 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="RadioButton">
-                        <Border x:Name="Bd"
-                                Background="Transparent"
-                                Padding="14,0">
+                        <Border x:Name="Bd" Background="Transparent" Padding="14,0">
                             <TextBlock x:Name="Txt"
                                        Text="{TemplateBinding Content}"
                                        FontSize="12"
@@ -55,11 +52,11 @@
 
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="30" />   <!-- Tab bar -->
-            <RowDefinition Height="*" />    <!-- Content -->
+            <RowDefinition Height="30" />
+            <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <!-- ── Tab navigation bar ─────────────────────────────────── -->
+        <!-- ── Tab navigation bar ────────────────────────────────── -->
         <Border Grid.Row="0"
                 Background="#252527"
                 BorderThickness="0,0,0,1"
@@ -86,13 +83,17 @@
                              Style="{StaticResource FlatTabStyle}"
                              Click="OnTabClick"
                              Tag="{x:Type pages:SettingsPage}" />
+                <RadioButton x:Name="TabConsole"
+                             Content="{DynamicResource NavConsole}"
+                             Style="{StaticResource FlatTabStyle}"
+                             Click="OnTabClick"
+                             Tag="{x:Type pages:ConsoleOutputPage}" />
             </StackPanel>
         </Border>
 
         <!-- ── Page content ──────────────────────────────────────── -->
-        <ContentControl
-            x:Name="PageContent"
-            Grid.Row="1"
-            Background="#1C1C1E" />
+        <ContentControl x:Name="PageContent"
+                        Grid.Row="1"
+                        Background="#1C1C1E" />
     </Grid>
 </Window>

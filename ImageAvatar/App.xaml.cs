@@ -28,6 +28,7 @@ public partial class App : Application
                 services.AddSingleton(appSettings);
 
                 // Core services
+                services.AddSingleton<ILogService, LogService>();
                 services.AddSingleton<ILocalizationService, LocalizationService>();
                 services.AddSingleton<IStorageService, StorageService>();
                 services.AddSingleton<IImageExtractionService, ImageExtractionService>();
@@ -42,6 +43,7 @@ public partial class App : Application
                 services.AddSingleton<SettingsViewModel>();
                 services.AddSingleton<BatchProcessorViewModel>();
                 services.AddSingleton<QcViewModel>();
+                services.AddSingleton<ConsoleViewModel>();
 
                 // Views
                 services.AddSingleton<MainWindow>();
@@ -49,6 +51,7 @@ public partial class App : Application
                 services.AddSingleton<SettingsPage>();
                 services.AddSingleton<BatchPage>();
                 services.AddSingleton<QcPage>();
+                services.AddSingleton<ConsoleOutputPage>();
             })
             .Build();
     }
