@@ -25,16 +25,16 @@
                     <ControlTemplate TargetType="RadioButton">
                         <Border x:Name="Bd"
                                 Background="Transparent"
-                                Padding="14,0">
+                                Padding="16,0">
                             <TextBlock x:Name="Txt"
                                        Text="{TemplateBinding Content}"
                                        FontSize="12"
-                                       Foreground="#AAAAAA"
+                                       Foreground="#7090B0"
                                        VerticalAlignment="Center" />
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsChecked" Value="True">
-                                <Setter TargetName="Bd"  Property="Background" Value="#3A3A3C" />
+                                <Setter TargetName="Bd"  Property="Background" Value="#1A3050" />
                                 <Setter TargetName="Txt" Property="Foreground" Value="White" />
                                 <Setter TargetName="Txt" Property="FontWeight" Value="SemiBold" />
                             </Trigger>
@@ -43,8 +43,8 @@
                                     <Condition Property="IsMouseOver" Value="True" />
                                     <Condition Property="IsChecked"   Value="False" />
                                 </MultiTrigger.Conditions>
-                                <Setter TargetName="Bd"  Property="Background" Value="#2C2C2E" />
-                                <Setter TargetName="Txt" Property="Foreground" Value="#CCCCCC" />
+                                <Setter TargetName="Bd"  Property="Background" Value="#152030" />
+                                <Setter TargetName="Txt" Property="Foreground" Value="#A0C0D8" />
                             </MultiTrigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -61,9 +61,9 @@
 
         <!-- ── Tab navigation bar ─────────────────────────────────── -->
         <Border Grid.Row="0"
-                Background="#252527"
+                Background="#0D1520"
                 BorderThickness="0,0,0,1"
-                BorderBrush="#404042">
+                BorderBrush="#1A2535">
             <StackPanel Orientation="Horizontal">
                 <RadioButton x:Name="TabDashboard"
                              Content="{DynamicResource NavDashboard}"

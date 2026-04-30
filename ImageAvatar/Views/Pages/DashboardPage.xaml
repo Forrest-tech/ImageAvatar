@@ -4,17 +4,17 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     xmlns:vm="clr-namespace:ImageAvatar.ViewModels"
+    xmlns:models="clr-namespace:ImageAvatar.Models"
     mc:Ignorable="d"
     Background="#1C1C1E"
     d:DataContext="{d:DesignInstance Type=vm:DashboardViewModel}">
 
     <UserControl.Resources>
 
-        <!-- Large blue service-toggle button (matches reference) -->
+        <!-- Large blue service-toggle button -->
         <Style x:Key="BigBlueBtnStyle" TargetType="Button">
-            <Setter Property="Background"                 Value="#3575BE" />
+            <Setter Property="Background"                 Value="#0056A4" />
             <Setter Property="Foreground"                 Value="White" />
             <Setter Property="BorderThickness"            Value="0" />
             <Setter Property="Height"                     Value="66" />
@@ -29,38 +29,10 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="#4585CE" />
+                                <Setter TargetName="Bd" Property="Background" Value="#1A6AC0" />
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="#2565AE" />
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- Open-Workspace / secondary blue button -->
-        <Style x:Key="MedBlueBtnStyle" TargetType="Button">
-            <Setter Property="Background"                 Value="#3575BE" />
-            <Setter Property="Foreground"                 Value="White" />
-            <Setter Property="BorderThickness"            Value="0" />
-            <Setter Property="Height"                     Value="36" />
-            <Setter Property="HorizontalContentAlignment" Value="Center" />
-            <Setter Property="Cursor"                     Value="Hand" />
-            <Setter Property="FocusVisualStyle"           Value="{x:Null}" />
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="Bd" Background="{TemplateBinding Background}" CornerRadius="2">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="#4585CE" />
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="#2565AE" />
+                                <Setter TargetName="Bd" Property="Background" Value="#003E7A" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -70,14 +42,14 @@
 
         <!-- Small icon/text button for inline actions -->
         <Style x:Key="SmallActionBtnStyle" TargetType="Button">
-            <Setter Property="Background"      Value="#3A3A3C" />
-            <Setter Property="Foreground"      Value="#CCCCCC" />
-            <Setter Property="BorderBrush"     Value="#555555" />
-            <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="Height"          Value="26" />
-            <Setter Property="Padding"         Value="10,0" />
-            <Setter Property="FontSize"        Value="12" />
-            <Setter Property="Cursor"          Value="Hand" />
+            <Setter Property="Background"       Value="#1A2535" />
+            <Setter Property="Foreground"       Value="#AAAAAA" />
+            <Setter Property="BorderBrush"      Value="#2A3848" />
+            <Setter Property="BorderThickness"  Value="1" />
+            <Setter Property="Height"           Value="26" />
+            <Setter Property="Padding"          Value="10,0" />
+            <Setter Property="FontSize"         Value="12" />
+            <Setter Property="Cursor"           Value="Hand" />
             <Setter Property="FocusVisualStyle" Value="{x:Null}" />
             <Setter Property="Template">
                 <Setter.Value>
@@ -92,12 +64,20 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="#4A4A4C" />
+                                <Setter TargetName="Bd" Property="Background" Value="#253548" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
+        </Style>
+
+        <!-- Stage section header label -->
+        <Style x:Key="StageHeaderStyle" TargetType="TextBlock">
+            <Setter Property="Foreground"   Value="#5A8AB0" />
+            <Setter Property="FontSize"     Value="10" />
+            <Setter Property="FontWeight"   Value="SemiBold" />
+            <Setter Property="Margin"       Value="0,14,0,4" />
         </Style>
 
     </UserControl.Resources>
@@ -108,10 +88,287 @@
           DragLeave="OnDragLeave"
           Drop="OnDrop">
 
-        <ScrollViewer VerticalScrollBarVisibility="Auto">
-            <StackPanel Margin="12,10,12,12">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="440" />   <!-- Left workflow panel -->
+            <ColumnDefinition Width="*" />     <!-- Right detail panel -->
+        </Grid.ColumnDefinitions>
 
-                <!-- ── Drag-drop overlay hint ───────────────────────────── -->
+        <!-- ═══════════════════════════════════════════════════════════ -->
+        <!-- LEFT PANEL — pipeline folder cards                         -->
+        <!-- ═══════════════════════════════════════════════════════════ -->
+        <Border Grid.Column="0"
+                Background="#05111F"
+                BorderThickness="0,0,1,0"
+                BorderBrush="#1A2535">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel Margin="12,10,12,12">
+
+                    <!-- ── Extract stage ────────────────────────────────── -->
+                    <TextBlock Text="■  提取阶段  EXTRACT"
+                               Style="{StaticResource StageHeaderStyle}" />
+
+                    <ItemsControl ItemsSource="{Binding ExtractFolders}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="{x:Type models:PipelineFolder}">
+                                <Button Height="88"
+                                        Margin="0,0,0,6"
+                                        Command="{Binding DataContext.OpenFolderCommand,
+                                            RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                        CommandParameter="{Binding FullPath}"
+                                        Cursor="Hand"
+                                        FocusVisualStyle="{x:Null}"
+                                        BorderThickness="0">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border x:Name="Bd"
+                                                    Background="#0D2B4E"
+                                                    CornerRadius="2"
+                                                    Padding="16,10">
+                                                <Grid>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="Auto" />
+                                                        <RowDefinition Height="*" />
+                                                        <RowDefinition Height="Auto" />
+                                                    </Grid.RowDefinitions>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*" />
+                                                        <ColumnDefinition Width="Auto" />
+                                                    </Grid.ColumnDefinitions>
+
+                                                    <TextBlock Grid.Row="0" Grid.Column="0"
+                                                               Text="{Binding FolderName}"
+                                                               Foreground="#A0C4E8"
+                                                               FontSize="11"
+                                                               TextTrimming="CharacterEllipsis" />
+
+                                                    <Ellipse Grid.Row="0" Grid.Column="1"
+                                                             Width="8" Height="8"
+                                                             VerticalAlignment="Center"
+                                                             Margin="6,0,0,0">
+                                                        <Ellipse.Style>
+                                                            <Style TargetType="Ellipse">
+                                                                <Setter Property="Fill" Value="#444444" />
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding Exists}" Value="True">
+                                                                        <Setter Property="Fill" Value="#4CAF50" />
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </Ellipse.Style>
+                                                    </Ellipse>
+
+                                                    <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                                                               Text="{Binding FileCount}"
+                                                               Foreground="White"
+                                                               FontSize="32"
+                                                               FontWeight="Bold"
+                                                               VerticalAlignment="Center"
+                                                               Margin="0,4,0,0" />
+
+                                                    <Button Grid.Row="2" Grid.Column="0"
+                                                            Content="↗"
+                                                            ToolTip="{DynamicResource BtnOpenFolder}"
+                                                            Command="{Binding DataContext.OpenFolderCommand,
+                                                                RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                            CommandParameter="{Binding FullPath}"
+                                                            Style="{StaticResource SmallActionBtnStyle}"
+                                                            Width="28"
+                                                            HorizontalAlignment="Left" />
+                                                </Grid>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter TargetName="Bd" Property="Background" Value="#1A4070" />
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <!-- ── Refine stage ─────────────────────────────────── -->
+                    <TextBlock Text="■  精修阶段  REFINE"
+                               Style="{StaticResource StageHeaderStyle}" />
+
+                    <ItemsControl ItemsSource="{Binding RefineFolders}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="{x:Type models:PipelineFolder}">
+                                <Button Height="88"
+                                        Margin="0,0,0,6"
+                                        Command="{Binding DataContext.OpenFolderCommand,
+                                            RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                        CommandParameter="{Binding FullPath}"
+                                        Cursor="Hand"
+                                        FocusVisualStyle="{x:Null}"
+                                        BorderThickness="0">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border x:Name="Bd"
+                                                    Background="#0D2B4E"
+                                                    CornerRadius="2"
+                                                    Padding="16,10">
+                                                <Grid>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="Auto" />
+                                                        <RowDefinition Height="*" />
+                                                        <RowDefinition Height="Auto" />
+                                                    </Grid.RowDefinitions>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*" />
+                                                        <ColumnDefinition Width="Auto" />
+                                                    </Grid.ColumnDefinitions>
+
+                                                    <TextBlock Grid.Row="0" Grid.Column="0"
+                                                               Text="{Binding FolderName}"
+                                                               Foreground="#A0C4E8"
+                                                               FontSize="11"
+                                                               TextTrimming="CharacterEllipsis" />
+
+                                                    <Ellipse Grid.Row="0" Grid.Column="1"
+                                                             Width="8" Height="8"
+                                                             VerticalAlignment="Center"
+                                                             Margin="6,0,0,0">
+                                                        <Ellipse.Style>
+                                                            <Style TargetType="Ellipse">
+                                                                <Setter Property="Fill" Value="#444444" />
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding Exists}" Value="True">
+                                                                        <Setter Property="Fill" Value="#4CAF50" />
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </Ellipse.Style>
+                                                    </Ellipse>
+
+                                                    <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                                                               Text="{Binding FileCount}"
+                                                               Foreground="White"
+                                                               FontSize="32"
+                                                               FontWeight="Bold"
+                                                               VerticalAlignment="Center"
+                                                               Margin="0,4,0,0" />
+
+                                                    <Button Grid.Row="2" Grid.Column="0"
+                                                            Content="↗"
+                                                            ToolTip="{DynamicResource BtnOpenFolder}"
+                                                            Command="{Binding DataContext.OpenFolderCommand,
+                                                                RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                            CommandParameter="{Binding FullPath}"
+                                                            Style="{StaticResource SmallActionBtnStyle}"
+                                                            Width="28"
+                                                            HorizontalAlignment="Left" />
+                                                </Grid>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter TargetName="Bd" Property="Background" Value="#1A4070" />
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <!-- ── Finalize stage ───────────────────────────────── -->
+                    <TextBlock Text="■  合成阶段  FINALIZE"
+                               Style="{StaticResource StageHeaderStyle}" />
+
+                    <ItemsControl ItemsSource="{Binding FinalizeFolders}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="{x:Type models:PipelineFolder}">
+                                <Button Height="88"
+                                        Margin="0,0,0,6"
+                                        Command="{Binding DataContext.OpenFolderCommand,
+                                            RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                        CommandParameter="{Binding FullPath}"
+                                        Cursor="Hand"
+                                        FocusVisualStyle="{x:Null}"
+                                        BorderThickness="0">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border x:Name="Bd"
+                                                    Background="#0D2B4E"
+                                                    CornerRadius="2"
+                                                    Padding="16,10">
+                                                <Grid>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="Auto" />
+                                                        <RowDefinition Height="*" />
+                                                        <RowDefinition Height="Auto" />
+                                                    </Grid.RowDefinitions>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*" />
+                                                        <ColumnDefinition Width="Auto" />
+                                                    </Grid.ColumnDefinitions>
+
+                                                    <TextBlock Grid.Row="0" Grid.Column="0"
+                                                               Text="{Binding FolderName}"
+                                                               Foreground="#A0C4E8"
+                                                               FontSize="11"
+                                                               TextTrimming="CharacterEllipsis" />
+
+                                                    <Ellipse Grid.Row="0" Grid.Column="1"
+                                                             Width="8" Height="8"
+                                                             VerticalAlignment="Center"
+                                                             Margin="6,0,0,0">
+                                                        <Ellipse.Style>
+                                                            <Style TargetType="Ellipse">
+                                                                <Setter Property="Fill" Value="#444444" />
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding Exists}" Value="True">
+                                                                        <Setter Property="Fill" Value="#4CAF50" />
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </Ellipse.Style>
+                                                    </Ellipse>
+
+                                                    <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                                                               Text="{Binding FileCount}"
+                                                               Foreground="White"
+                                                               FontSize="32"
+                                                               FontWeight="Bold"
+                                                               VerticalAlignment="Center"
+                                                               Margin="0,4,0,0" />
+
+                                                    <Button Grid.Row="2" Grid.Column="0"
+                                                            Content="↗"
+                                                            ToolTip="{DynamicResource BtnOpenFolder}"
+                                                            Command="{Binding DataContext.OpenFolderCommand,
+                                                                RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                            CommandParameter="{Binding FullPath}"
+                                                            Style="{StaticResource SmallActionBtnStyle}"
+                                                            Width="28"
+                                                            HorizontalAlignment="Left" />
+                                                </Grid>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter TargetName="Bd" Property="Background" Value="#1A4070" />
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                </StackPanel>
+            </ScrollViewer>
+        </Border>
+
+        <!-- ═══════════════════════════════════════════════════════════ -->
+        <!-- RIGHT PANEL — controls and status                          -->
+        <!-- ═══════════════════════════════════════════════════════════ -->
+        <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto">
+            <StackPanel Margin="16,12,16,16">
+
+                <!-- ── Drag-drop overlay hint ──────────────────────── -->
                 <Border x:Name="DropHintBorder"
                         Visibility="Collapsed"
                         BorderBrush="#4FC3F7"
@@ -126,54 +383,41 @@
                                HorizontalAlignment="Center" />
                 </Border>
 
-                <!-- ── Row 1 : Open Workspace button + path ─────────────── -->
-                <Grid Margin="0,0,0,10">
+                <!-- ── Workspace path row ──────────────────────────── -->
+                <Grid Margin="0,0,0,12">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="440" />   <!-- blue button -->
-                        <ColumnDefinition Width="*" />     <!-- path text -->
-                        <ColumnDefinition Width="Auto" />  <!-- 浏览 -->
-                        <ColumnDefinition Width="Auto" />  <!-- 应用 -->
-                        <ColumnDefinition Width="Auto" />  <!-- refresh -->
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
 
-                    <!-- Open Workspace button -->
-                    <Button Grid.Column="0"
-                            Command="{Binding OpenFolderCommand}"
-                            CommandParameter="{Binding RootPath}"
-                            Style="{StaticResource MedBlueBtnStyle}">
-                        <TextBlock Text="{DynamicResource BtnOpenWorkspace}" FontSize="13" />
-                    </Button>
-
-                    <!-- Current path display -->
-                    <TextBlock Grid.Column="1"
+                    <TextBlock Grid.Column="0"
                                Text="{Binding RootPath}"
-                               Foreground="#CCCCCC"
+                               Foreground="#AAAAAA"
                                FontSize="12"
                                VerticalAlignment="Center"
-                               Margin="14,0,10,0"
+                               Margin="0,0,10,0"
                                TextTrimming="CharacterEllipsis" />
 
-                    <!-- Browse path -->
-                    <Button Grid.Column="2"
+                    <Button Grid.Column="1"
                             Content="{DynamicResource BtnBrowse}"
                             Command="{Binding BrowseSourceFolderCommand}"
                             Style="{StaticResource SmallActionBtnStyle}"
                             Margin="0,0,4,0"
                             VerticalAlignment="Center" />
 
-                    <!-- Apply path -->
-                    <Button Grid.Column="3"
+                    <Button Grid.Column="2"
                             Content="{DynamicResource BtnApply}"
                             Command="{Binding ApplyRootPathCommand}"
                             Style="{StaticResource SmallActionBtnStyle}"
-                            Background="#3575BE"
-                            BorderBrush="#3575BE"
+                            Background="#0056A4"
+                            BorderBrush="#0056A4"
                             Foreground="White"
                             Margin="0,0,4,0"
                             VerticalAlignment="Center" />
 
-                    <!-- Refresh -->
-                    <Button Grid.Column="4"
+                    <Button Grid.Column="3"
                             Content="↻"
                             ToolTip="{DynamicResource BtnRefresh}"
                             Command="{Binding RefreshCommand}"
@@ -181,69 +425,68 @@
                             VerticalAlignment="Center" />
                 </Grid>
 
-                <!-- ── Row 2 : Auto-extraction service toggle ────────────── -->
-                <Grid Margin="0,0,0,8">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="440" />   <!-- blue button -->
-                        <ColumnDefinition Width="Auto" />  <!-- status dot + text -->
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
+                <!-- ── Open Workspace button ───────────────────────── -->
+                <Button Margin="0,0,0,8"
+                        Command="{Binding OpenFolderCommand}"
+                        CommandParameter="{Binding RootPath}"
+                        Style="{StaticResource BigBlueBtnStyle}">
+                    <TextBlock Text="{DynamicResource BtnOpenWorkspace}" FontSize="13" />
+                </Button>
 
-                    <Button Grid.Column="0"
-                            Command="{Binding ToggleWatchingCommand}"
-                            Style="{StaticResource BigBlueBtnStyle}">
-                        <TextBlock Text="{DynamicResource LabelToggleAutoExtractionService}"
-                                   FontSize="14"
-                                   FontWeight="SemiBold" />
-                    </Button>
+                <!-- ── Auto-extraction service toggle ─────────────── -->
+                <Button Margin="0,0,0,10"
+                        Command="{Binding ToggleWatchingCommand}"
+                        Style="{StaticResource BigBlueBtnStyle}">
+                    <TextBlock Text="{DynamicResource LabelToggleAutoExtractionService}"
+                               FontSize="14"
+                               FontWeight="SemiBold" />
+                </Button>
 
-                    <StackPanel Grid.Column="1"
-                                Orientation="Horizontal"
-                                VerticalAlignment="Center"
-                                Margin="18,0,0,0">
-                        <Ellipse Width="8" Height="8" VerticalAlignment="Center" Margin="0,0,6,0">
-                            <Ellipse.Style>
-                                <Style TargetType="Ellipse">
-                                    <Setter Property="Fill" Value="#666666" />
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsWatching}" Value="True">
-                                            <Setter Property="Fill" Value="#4CAF50" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Ellipse.Style>
-                        </Ellipse>
-                        <TextBlock Text="{Binding ServiceStatusText}"
-                                   FontSize="13"
-                                   VerticalAlignment="Center">
-                            <TextBlock.Style>
-                                <Style TargetType="TextBlock">
-                                    <Setter Property="Foreground" Value="#888888" />
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsWatching}" Value="True">
-                                            <Setter Property="Foreground" Value="#81C784" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </TextBlock.Style>
-                        </TextBlock>
-                    </StackPanel>
-                </Grid>
+                <!-- ── Service status row ──────────────────────────── -->
+                <StackPanel Orientation="Horizontal"
+                            Margin="0,0,0,10">
+                    <Ellipse Width="8" Height="8" VerticalAlignment="Center" Margin="0,0,6,0">
+                        <Ellipse.Style>
+                            <Style TargetType="Ellipse">
+                                <Setter Property="Fill" Value="#444444" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsWatching}" Value="True">
+                                        <Setter Property="Fill" Value="#4CAF50" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Ellipse.Style>
+                    </Ellipse>
+                    <TextBlock Text="{Binding ServiceStatusText}"
+                               FontSize="13"
+                               VerticalAlignment="Center">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Foreground" Value="#666666" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsWatching}" Value="True">
+                                        <Setter Property="Foreground" Value="#81C784" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                </StackPanel>
 
-                <!-- ── Model Ready badge ──────────────────────────────────── -->
+                <!-- ── Model Ready badge ──────────────────────────── -->
                 <Border HorizontalAlignment="Left"
                         Background="#1B5E20"
                         CornerRadius="3"
                         Padding="8,3"
-                        Margin="0,4,0,10"
+                        Margin="0,0,0,12"
                         Visibility="{Binding IsModelLoaded, Converter={StaticResource BoolToVis}}">
                     <TextBlock Text="{DynamicResource LabelModelLoaded}"
                                Foreground="#81C784"
                                FontSize="11" />
                 </Border>
 
-                <!-- ── Extraction progress ────────────────────────────────── -->
-                <Border Background="#2A2A2C"
+                <!-- ── Extraction progress ─────────────────────────── -->
+                <Border Background="#0D1A28"
                         CornerRadius="3"
                         Padding="12,10"
                         Margin="0,0,0,8"
@@ -258,16 +501,16 @@
                                      Maximum="1.0"
                                      Height="5"
                                      Margin="0,0,0,4"
-                                     Foreground="#3575BE"
-                                     Background="#444444" />
+                                     Foreground="#0056A4"
+                                     Background="#1A2535" />
                         <TextBlock Text="{Binding ExtractionStatus}"
                                    Foreground="#AAAAAA"
                                    FontSize="11" />
                     </StackPanel>
                 </Border>
 
-                <!-- ── Last result ─────────────────────────────────────────── -->
-                <Border Background="#2A2A2C"
+                <!-- ── Last result ────────────────────────────────── -->
+                <Border Background="#0D1A28"
                         CornerRadius="3"
                         Padding="12,8"
                         Visibility="{Binding ExtractionStatus, Converter={StaticResource NotEmptyToVis}}">

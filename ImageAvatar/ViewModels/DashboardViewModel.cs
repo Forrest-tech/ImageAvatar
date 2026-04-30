@@ -16,6 +16,12 @@ public partial class DashboardViewModel : ObservableObject
     private readonly ILocalizationService        _localization;
     private readonly AppSettingsService          _settings;
 
+    public IReadOnlyList<PipelineFolder> Folders => _storage.Folders;
+
+    public IEnumerable<PipelineFolder> ExtractFolders  => _storage.Folders.Where(f => f.Stage == PipelineStage.Extract);
+    public IEnumerable<PipelineFolder> RefineFolders   => _storage.Folders.Where(f => f.Stage == PipelineStage.Refine);
+    public IEnumerable<PipelineFolder> FinalizeFolders => _storage.Folders.Where(f => f.Stage == PipelineStage.Finalize);
+
     [ObservableProperty] private string _rootPath;
     [ObservableProperty] private bool   _isWatching;
     [ObservableProperty] private bool   _isExtracting;
@@ -60,7 +66,12 @@ public partial class DashboardViewModel : ObservableObject
         OnPropertyChanged(nameof(ServiceToggleText));
     }
 
-    private void OnFolderChanged(object? sender, FolderChangedEventArgs e) { }
+    private void OnFolderChanged(object? sender, FolderChangedEventArgs e)
+    {
+        // PipelineFolder is observable; its FileCount setter already fired
+        // PropertyChanged (which WPF marshals to the UI thread automatically).
+        // Nothing extra needed here.
+    }
 
     private void OnExtractionProgress(object? sender, ExtractionProgressEventArgs e)
     {

@@ -43,15 +43,19 @@ public class StorageService : IStorageService, IDisposable
         RebuildPaths();
     }
 
+    private static readonly string[] ImageFilters =
+        ["*.png", "*.jpg", "*.jpeg", "*.bmp", "*.tiff", "*.tif", "*.webp"];
+
+    private static int CountImages(string folder) =>
+        ImageFilters.Sum(f => Directory.GetFiles(folder, f, SearchOption.TopDirectoryOnly).Length);
+
     private void RebuildPaths()
     {
         foreach (var folder in _folders)
         {
-            folder.FullPath = Path.Combine(_rootPath, folder.FolderName);
-            folder.Exists = Directory.Exists(folder.FullPath);
-            folder.FileCount = folder.Exists
-                ? Directory.GetFiles(folder.FullPath, "*.png", SearchOption.TopDirectoryOnly).Length
-                : 0;
+            folder.FullPath  = Path.Combine(_rootPath, folder.FolderName);
+            folder.Exists    = Directory.Exists(folder.FullPath);
+            folder.FileCount = folder.Exists ? CountImages(folder.FullPath) : 0;
         }
     }
 
@@ -89,12 +93,13 @@ public class StorageService : IStorageService, IDisposable
 
     private void OnFolderChanged(PipelineFolder folder)
     {
-        folder.FileCount = Directory.GetFiles(folder.FullPath, "*.png", SearchOption.TopDirectoryOnly).Length;
+        int count = CountImages(folder.FullPath);
+        folder.FileCount = count;
         FolderChanged?.Invoke(this, new FolderChangedEventArgs
         {
-            FolderName = folder.FolderName,
-            FullPath = folder.FullPath,
-            NewFileCount = folder.FileCount
+            FolderName   = folder.FolderName,
+            FullPath     = folder.FullPath,
+            NewFileCount = count
         });
     }
 

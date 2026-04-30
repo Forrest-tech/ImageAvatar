@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(Stop-Process *)",
+      "PowerShell(dotnet build *)",
+      "PowerShell(Get-Process *)",
+      "PowerShell(git add *)",
+      "PowerShell(& \"C:\\\\Program Files\\\\Git\\\\bin\\\\git.exe\" -C \"C:\\\\Users\\\\Forrest Lin\\\\source\\\\repos\\\\Forrest-tech\\\\ImageAvatar\" add -A; & \"C:\\\\Program Files\\\\Git\\\\bin\\\\git.exe\" -C \"C:\\\\Users\\\\Forrest Lin\\\\source\\\\repos\\\\Forrest-tech\\\\ImageAvatar\" status)"
+    ]
+  }
+}
