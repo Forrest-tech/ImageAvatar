@@ -4,95 +4,99 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     xmlns:pages="clr-namespace:ImageAvatar.Views.Pages"
     mc:Ignorable="d"
-    Title="{DynamicResource AppTitle}"
-    Width="1024"
-    Height="680"
-    MinWidth="800"
-    MinHeight="500"
-    Background="#1C1C1E"
-    WindowStartupLocation="CenterScreen">
-
-    <Window.Resources>
-        <!-- Flat compact tab button – matches reference image style -->
-        <Style x:Key="FlatTabStyle" TargetType="RadioButton">
-            <Setter Property="GroupName"        Value="PageTabs" />
-            <Setter Property="Cursor"           Value="Hand" />
-            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="RadioButton">
-                        <Border x:Name="Bd"
-                                Background="Transparent"
-                                Padding="16,0">
-                            <TextBlock x:Name="Txt"
-                                       Text="{TemplateBinding Content}"
-                                       FontSize="12"
-                                       Foreground="#7090B0"
-                                       VerticalAlignment="Center" />
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsChecked" Value="True">
-                                <Setter TargetName="Bd"  Property="Background" Value="#1A3050" />
-                                <Setter TargetName="Txt" Property="Foreground" Value="White" />
-                                <Setter TargetName="Txt" Property="FontWeight" Value="SemiBold" />
-                            </Trigger>
-                            <MultiTrigger>
-                                <MultiTrigger.Conditions>
-                                    <Condition Property="IsMouseOver" Value="True" />
-                                    <Condition Property="IsChecked"   Value="False" />
-                                </MultiTrigger.Conditions>
-                                <Setter TargetName="Bd"  Property="Background" Value="#152030" />
-                                <Setter TargetName="Txt" Property="Foreground" Value="#A0C0D8" />
-                            </MultiTrigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-    </Window.Resources>
+    Title="ImageAvatar"
+    Width="1280"
+    Height="760"
+    MinWidth="960"
+    MinHeight="600"
+    WindowStartupLocation="CenterScreen"
+    Background="#1E1E1E">
 
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="30" />   <!-- Tab bar -->
-            <RowDefinition Height="*" />    <!-- Content -->
-        </Grid.RowDefinitions>
+        <ui:NavigationView
+            x:Name="RootNavigation"
+            PaneDisplayMode="Top"
+            IsBackButtonVisible="Collapsed">
 
-        <!-- ── Tab navigation bar ─────────────────────────────────── -->
-        <Border Grid.Row="0"
-                Background="#0D1520"
-                BorderThickness="0,0,0,1"
-                BorderBrush="#1A2535">
-            <StackPanel Orientation="Horizontal">
-                <RadioButton x:Name="TabDashboard"
-                             Content="{DynamicResource NavDashboard}"
-                             Style="{StaticResource FlatTabStyle}"
-                             IsChecked="True"
-                             Click="OnTabClick"
-                             Tag="{x:Type pages:DashboardPage}" />
-                <RadioButton x:Name="TabBatch"
-                             Content="{DynamicResource NavBatch}"
-                             Style="{StaticResource FlatTabStyle}"
-                             Click="OnTabClick"
-                             Tag="{x:Type pages:BatchPage}" />
-                <RadioButton x:Name="TabQc"
-                             Content="{DynamicResource NavQc}"
-                             Style="{StaticResource FlatTabStyle}"
-                             Click="OnTabClick"
-                             Tag="{x:Type pages:QcPage}" />
-                <RadioButton x:Name="TabSettings"
-                             Content="{DynamicResource NavSettings}"
-                             Style="{StaticResource FlatTabStyle}"
-                             Click="OnTabClick"
-                             Tag="{x:Type pages:SettingsPage}" />
-            </StackPanel>
-        </Border>
+            <ui:NavigationView.MenuItems>
 
-        <!-- ── Page content ──────────────────────────────────────── -->
-        <ContentControl
-            x:Name="PageContent"
-            Grid.Row="1"
-            Background="#1C1C1E" />
+                <ui:NavigationViewItem
+                    Content="中控台"
+                    TargetPageType="{x:Type pages:DashboardPage}">
+                    <ui:NavigationViewItem.Icon>
+                        <ui:SymbolIcon Symbol="Home24" />
+                    </ui:NavigationViewItem.Icon>
+                </ui:NavigationViewItem>
+
+                <ui:NavigationViewItem
+                    Content="全局配置"
+                    TargetPageType="{x:Type pages:GlobalConfigPage}">
+                    <ui:NavigationViewItem.Icon>
+                        <ui:SymbolIcon Symbol="Settings24" />
+                    </ui:NavigationViewItem.Icon>
+                </ui:NavigationViewItem>
+
+                <ui:NavigationViewItem
+                    Content="自动裁剪"
+                    TargetPageType="{x:Type pages:CropConfigPage}">
+                    <ui:NavigationViewItem.Icon>
+                        <ui:SymbolIcon Symbol="Crop24" />
+                    </ui:NavigationViewItem.Icon>
+                </ui:NavigationViewItem>
+
+                <ui:NavigationViewItem
+                    Content="提示词配置"
+                    TargetPageType="{x:Type pages:PromptConfigPage}">
+                    <ui:NavigationViewItem.Icon>
+                        <ui:SymbolIcon Symbol="Chat24" />
+                    </ui:NavigationViewItem.Icon>
+                </ui:NavigationViewItem>
+
+                <ui:NavigationViewItem
+                    Content="生图服务"
+                    TargetPageType="{x:Type pages:GenConfigPage}">
+                    <ui:NavigationViewItem.Icon>
+                        <ui:SymbolIcon Symbol="Image24" />
+                    </ui:NavigationViewItem.Icon>
+                </ui:NavigationViewItem>
+
+                <ui:NavigationViewItem
+                    Content="自动抠图"
+                    TargetPageType="{x:Type pages:MattingConfigPage}">
+                    <ui:NavigationViewItem.Icon>
+                        <ui:SymbolIcon Symbol="Cut24" />
+                    </ui:NavigationViewItem.Icon>
+                </ui:NavigationViewItem>
+
+                <ui:NavigationViewItem
+                    Content="自动合成"
+                    TargetPageType="{x:Type pages:SynthesisConfigPage}">
+                    <ui:NavigationViewItem.Icon>
+                        <ui:SymbolIcon Symbol="Layer24" />
+                    </ui:NavigationViewItem.Icon>
+                </ui:NavigationViewItem>
+
+                <ui:NavigationViewItem
+                    Content="Excel 生成"
+                    TargetPageType="{x:Type pages:ExcelGenPage}">
+                    <ui:NavigationViewItem.Icon>
+                        <ui:SymbolIcon Symbol="DocumentTable24" />
+                    </ui:NavigationViewItem.Icon>
+                </ui:NavigationViewItem>
+
+                <ui:NavigationViewItem
+                    Content="控制台"
+                    TargetPageType="{x:Type pages:ConsolePage}">
+                    <ui:NavigationViewItem.Icon>
+                        <ui:SymbolIcon Symbol="Braces24" />
+                    </ui:NavigationViewItem.Icon>
+                </ui:NavigationViewItem>
+
+            </ui:NavigationView.MenuItems>
+
+        </ui:NavigationView>
     </Grid>
 </Window>

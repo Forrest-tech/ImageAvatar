@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Windows;
+using Wpf.Ui;
 
 namespace ImageAvatar;
 
@@ -24,29 +25,55 @@ public partial class App : Application
                        .AddJsonFile("appsettings.json", optional: true, reloadOnChange: false))
             .ConfigureServices((ctx, services) =>
             {
-                // Settings: code defaults < appsettings.json < %AppData%\settings.json
+                // Settings
                 var appSettings = AppSettingsService.LoadWithDefaults(ctx.Configuration);
                 services.AddSingleton(appSettings);
 
-                // Core services
+                // ── Core services ──────────────────────────────────────────
                 services.AddSingleton<ILocalizationService, LocalizationService>();
-                services.AddSingleton<IStorageService, StorageService>();
+                services.AddSingleton<IStorageService,      StorageService>();
                 services.AddSingleton<IImageExtractionService, ImageExtractionService>();
                 services.AddSingleton<IPipelineCoordinatorService, PipelineCoordinatorService>();
-                services.AddSingleton<IMockupService, MockupService>();
-                services.AddSingleton<IBatchMockupService, BatchMockupService>();
-                services.AddSingleton<IQcService, QcService>();
+                services.AddSingleton<IMockupService,       MockupService>();
+                services.AddSingleton<IBatchMockupService,  BatchMockupService>();
+                services.AddSingleton<IQcService,           QcService>();
+                services.AddSingleton<ILogService,          LogService>();
+                services.AddSingleton<ICropService,         CropService>();
+                services.AddSingleton<IPromptService,       PromptService>();
+                services.AddSingleton<IGenService,          GenService>();
 
-                // ViewModels
+                // ── Navigation (WPF-UI) ────────────────────────────────────
+                services.AddSingleton<INavigationService, NavigationService>();
+                services.AddSingleton<IPageService,       NavigationPageService>();
+
+                // ── ViewModels ─────────────────────────────────────────────
                 services.AddSingleton<MainWindowViewModel>();
                 services.AddSingleton<DashboardViewModel>();
+                services.AddSingleton<GlobalConfigViewModel>();
+                services.AddSingleton<CropConfigViewModel>();
+                services.AddSingleton<PromptConfigViewModel>();
+                services.AddSingleton<GenConfigViewModel>();
+                services.AddSingleton<MattingConfigViewModel>();
+                services.AddSingleton<SynthesisConfigViewModel>();
+                services.AddSingleton<ExcelGenViewModel>();
+                services.AddSingleton<ConsoleViewModel>();
+                // Legacy (kept for potential future use)
                 services.AddSingleton<SettingsViewModel>();
                 services.AddSingleton<BatchProcessorViewModel>();
                 services.AddSingleton<QcViewModel>();
 
-                // Views
+                // ── Views ──────────────────────────────────────────────────
                 services.AddSingleton<MainWindow>();
                 services.AddSingleton<DashboardPage>();
+                services.AddSingleton<GlobalConfigPage>();
+                services.AddSingleton<CropConfigPage>();
+                services.AddSingleton<PromptConfigPage>();
+                services.AddSingleton<GenConfigPage>();
+                services.AddSingleton<MattingConfigPage>();
+                services.AddSingleton<SynthesisConfigPage>();
+                services.AddSingleton<ExcelGenPage>();
+                services.AddSingleton<ConsolePage>();
+                // Legacy
                 services.AddSingleton<SettingsPage>();
                 services.AddSingleton<BatchPage>();
                 services.AddSingleton<QcPage>();
@@ -56,18 +83,50 @@ public partial class App : Application
 
     protected override async void OnStartup(StartupEventArgs e)
     {
+        DispatcherUnhandledException += (_, ex) =>
+        {
+            System.IO.File.AppendAllText(
+                System.IO.Path.Combine(AppContext.BaseDirectory, "crash.log"),
+                $"[Dispatcher {DateTime.Now:HH:mm:ss}] {ex.Exception}\n\n");
+            ex.Handled = true;
+        };
+
+        AppDomain.CurrentDomain.UnhandledException += (_, ex) =>
+        {
+            System.IO.File.AppendAllText(
+                System.IO.Path.Combine(AppContext.BaseDirectory, "crash.log"),
+                $"[AppDomain {DateTime.Now:HH:mm:ss}] {ex.ExceptionObject}\n\n");
+        };
+
+        TaskScheduler.UnobservedTaskException += (_, ex) =>
+        {
+            System.IO.File.AppendAllText(
+                System.IO.Path.Combine(AppContext.BaseDirectory, "crash.log"),
+                $"[Task {DateTime.Now:HH:mm:ss}] {ex.Exception}\n\n");
+            ex.SetObserved();
+        };
+
         await _host.StartAsync();
 
         var localization = _host.Services.GetRequiredService<ILocalizationService>();
         localization.SetLanguage("zh-CN");
 
-        // Auto-load model if path exists
+        var log = _host.Services.GetRequiredService<ILogService>();
+        log.Log("系统", "ImageAvatar 已启动");
+
         var settings   = _host.Services.GetRequiredService<AppSettingsService>();
         var extraction = _host.Services.GetRequiredService<IImageExtractionService>();
         if (System.IO.File.Exists(settings.ModelPath))
         {
-            try { await extraction.LoadModelAsync(settings.ModelPath); }
-            catch { /* model file may be corrupt – ignore, user can reload in Settings */ }
+            try
+            {
+                await extraction.LoadModelAsync(settings.ModelPath);
+                log.Log("模型", $"已自动加载：{settings.ModelPath}");
+            }
+            catch (Exception ex)
+            {
+                log.Log("模型", $"加载失败：{ex.Message}");
+            }
         }
 
         var mainWindow = _host.Services.GetRequiredService<MainWindow>();

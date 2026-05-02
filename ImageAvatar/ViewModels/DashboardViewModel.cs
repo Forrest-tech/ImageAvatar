@@ -1,7 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ImageAvatar.Contracts.Services;
-using ImageAvatar.Models;
 using ImageAvatar.Services;
 using System.IO;
 using System.Windows;
@@ -11,147 +10,210 @@ namespace ImageAvatar.ViewModels;
 public partial class DashboardViewModel : ObservableObject
 {
     private readonly IStorageService             _storage;
-    private readonly IPipelineCoordinatorService _coordinator;
-    private readonly IImageExtractionService     _extraction;
-    private readonly ILocalizationService        _localization;
+    private readonly IPipelineCoordinatorService _matting;
+    private readonly IBatchMockupService         _synthesis;
+    private readonly ICropService                _crop;
+    private readonly IPromptService              _prompt;
+    private readonly IGenService                 _gen;
+    private readonly ILogService                 _log;
     private readonly AppSettingsService          _settings;
 
-    public IReadOnlyList<PipelineFolder> Folders => _storage.Folders;
-
-    public IEnumerable<PipelineFolder> ExtractFolders  => _storage.Folders.Where(f => f.Stage == PipelineStage.Extract);
-    public IEnumerable<PipelineFolder> RefineFolders   => _storage.Folders.Where(f => f.Stage == PipelineStage.Refine);
-    public IEnumerable<PipelineFolder> FinalizeFolders => _storage.Folders.Where(f => f.Stage == PipelineStage.Finalize);
-
+    // ── Workspace ─────────────────────────────────────────────────────────
     [ObservableProperty] private string _rootPath;
-    [ObservableProperty] private bool   _isWatching;
-    [ObservableProperty] private bool   _isExtracting;
-    [ObservableProperty] private double _extractionProgress;
-    [ObservableProperty] private string _extractionStatus = string.Empty;
-    [ObservableProperty] private string _currentFile      = string.Empty;
-    [ObservableProperty] private bool   _isModelLoaded;
 
-    public string ServiceStatusText => IsWatching ? GetResource("LabelServiceRunning") : GetResource("LabelServiceStopped");
-    public string ServiceToggleText => IsWatching ? GetResource("BtnStopService")      : GetResource("BtnStartService");
+    // ── Service running states ─────────────────────────────────────────────
+    [ObservableProperty] private bool   _isCropRunning;
+    [ObservableProperty] private string _cropStatusText = "● 未启动";
+    [ObservableProperty] private bool _isPromptRunning;
+    [ObservableProperty] private bool _isGenRunning;
+    [ObservableProperty] private bool _isMattingRunning;
+    [ObservableProperty] private bool _isSynthesisRunning;
+
+    private CancellationTokenSource? _synthesisCts;
 
     public DashboardViewModel(
         IStorageService             storage,
-        IPipelineCoordinatorService coordinator,
-        IImageExtractionService     extraction,
-        ILocalizationService        localization,
+        IPipelineCoordinatorService matting,
+        IBatchMockupService         synthesis,
+        ICropService                crop,
+        IPromptService              prompt,
+        IGenService                 gen,
+        ILogService                 log,
         AppSettingsService          settings)
     {
-        _storage      = storage;
-        _coordinator  = coordinator;
-        _extraction   = extraction;
-        _localization = localization;
-        _settings     = settings;
-
-        _rootPath      = storage.RootPath;
-        _isModelLoaded = extraction.IsModelLoaded;
-
-        _storage.FolderChanged       += OnFolderChanged;
-        _coordinator.ProgressChanged += OnExtractionProgress;
-        _coordinator.FileCompleted   += OnFileCompleted;
-
-        _localization.LanguageChanged += (_, _) =>
-        {
-            OnPropertyChanged(nameof(ServiceStatusText));
-            OnPropertyChanged(nameof(ServiceToggleText));
-        };
+        _storage   = storage;
+        _matting   = matting;
+        _synthesis = synthesis;
+        _crop      = crop;
+        _prompt    = prompt;
+        _gen       = gen;
+        _log       = log;
+        _settings  = settings;
+        _rootPath  = storage.RootPath;
     }
 
-    partial void OnIsWatchingChanged(bool value)
-    {
-        OnPropertyChanged(nameof(ServiceStatusText));
-        OnPropertyChanged(nameof(ServiceToggleText));
-    }
-
-    private void OnFolderChanged(object? sender, FolderChangedEventArgs e)
-    {
-        // PipelineFolder is observable; its FileCount setter already fired
-        // PropertyChanged (which WPF marshals to the UI thread automatically).
-        // Nothing extra needed here.
-    }
-
-    private void OnExtractionProgress(object? sender, ExtractionProgressEventArgs e)
-    {
-        Application.Current.Dispatcher.Invoke(() =>
-        {
-            IsExtracting       = true;
-            IsModelLoaded      = _extraction.IsModelLoaded;
-            ExtractionProgress = e.Progress;
-            CurrentFile        = Path.GetFileName(e.FilePath);
-            ExtractionStatus   = e.PendingCount > 0
-                ? $"{CurrentFile}  (+{e.PendingCount} queued)"
-                : CurrentFile;
-        });
-    }
-
-    private void OnFileCompleted(object? sender, ExtractionResult e)
-    {
-        Application.Current.Dispatcher.Invoke(() =>
-        {
-            IsExtracting       = false;
-            ExtractionProgress = 0;
-            ExtractionStatus   = e.Success
-                ? $"✓ {Path.GetFileName(e.SourcePath)}  ({e.Elapsed.TotalSeconds:F1}s)"
-                : $"✗ {Path.GetFileName(e.SourcePath)}: {e.ErrorMessage}";
-        });
-    }
+    // ── Workspace commands ─────────────────────────────────────────────────
 
     [RelayCommand]
-    private void Refresh()
-    {
-        _storage.RefreshAll();
-        IsModelLoaded = _extraction.IsModelLoaded;
-    }
 
-    [RelayCommand]
-    private void ToggleWatching()
-    {
-        if (IsWatching)
-        {
-            _storage.StopWatching();
-            _coordinator.Stop();
-            IsWatching = false;
-        }
-        else
-        {
-            _storage.StartWatching();
-            _coordinator.Start();
-            IsWatching    = true;
-            IsModelLoaded = _extraction.IsModelLoaded;
-        }
-    }
-
-    [RelayCommand]
-    private void ApplyRootPath()
-    {
-        _storage.RootPath = RootPath;
-        _storage.RefreshAll();
-        _settings.WorkspaceRoot = RootPath;
-        _settings.Save();
-    }
-
-    [RelayCommand]
-    private void BrowseSourceFolder()
+    private void BrowseWorkspace()
     {
         var dialog = new Microsoft.Win32.OpenFolderDialog
         {
-            Title            = GetResource("LabelRootPath"),
+            Title            = "选择工作区根目录（如 D:/PodFlow）",
             InitialDirectory = Directory.Exists(RootPath) ? RootPath : string.Empty
         };
-        if (dialog.ShowDialog() == true)
-            RootPath = dialog.FolderName;
+        if (dialog.ShowDialog() != true) return;
+
+        RootPath                 = dialog.FolderName;
+        _storage.RootPath        = RootPath;
+        _settings.WorkspaceRoot  = RootPath;
+        _settings.Save();
+        _storage.RefreshAll();
+        _log.Log("工作区", $"已切换至 {RootPath}");
     }
 
     [RelayCommand]
-    private void OpenFolder(string? path)
+    private void OpenWorkspace()
     {
-        if (!string.IsNullOrEmpty(path) && Directory.Exists(path))
-            System.Diagnostics.Process.Start("explorer.exe", path);
+        if (Directory.Exists(RootPath))
+            System.Diagnostics.Process.Start("explorer.exe", RootPath);
     }
 
-    private static string GetResource(string key) =>
-        Application.Current.TryFindResource(key) as string ?? key;
+    // ── 自动裁图 ────────────────────────────────────────────────────────────
+
+    [RelayCommand]
+    private void ToggleCrop()
+    {
+        if (IsCropRunning)
+        {
+            _crop.Stop();
+            IsCropRunning  = false;
+            CropStatusText = "● 未启动";
+            _log.Log("裁图", "服务已停止");
+            return;
+        }
+
+        IsCropRunning  = true;
+        CropStatusText = "● 运行中";
+        _log.Log("裁图", "服务已启动");
+
+        _ = Task.Run(async () =>
+        {
+            bool cancelled = false;
+            try   { await _crop.StartAsync(); }
+            catch (OperationCanceledException) { cancelled = true; }
+            catch (Exception ex)
+            {
+                cancelled = true;
+                _log.Log("裁图", $"异常: {ex.Message}");
+            }
+            finally
+            {
+                Application.Current?.Dispatcher.Invoke(() =>
+                {
+                    IsCropRunning  = false;
+                    CropStatusText = cancelled ? "● 未启动" : "● 裁剪完成";
+                });
+            }
+        });
+    }
+
+    // ── 提示词生成 ─────────────────────────────────────────────────────────
+
+    [RelayCommand]
+    private async Task TogglePromptAsync()
+    {
+        if (IsPromptRunning)
+        {
+            _prompt.Stop();
+            IsPromptRunning = false;
+            _log.Log("提示词", "服务已停止");
+        }
+        else
+        {
+            IsPromptRunning = true;
+            await Task.Run(() => _prompt.StartAsync());
+            _log.Log("提示词", "服务已启动");
+        }
+    }
+
+    // ── 生图 ───────────────────────────────────────────────────────────────
+
+    [RelayCommand]
+    private async Task ToggleGenAsync()
+    {
+        if (IsGenRunning)
+        {
+            _gen.Stop();
+            IsGenRunning = false;
+            _log.Log("生图", "服务已停止");
+        }
+        else
+        {
+            IsGenRunning = true;
+            await Task.Run(() => _gen.StartAsync());
+            _log.Log("生图", "服务已启动");
+        }
+    }
+
+    // ── 自动抠图 (pipeline coordinator) ────────────────────────────────────
+
+    [RelayCommand]
+    private async Task ToggleMattingAsync()
+    {
+        if (IsMattingRunning)
+        {
+            await Task.Run(() => _matting.Stop());
+            IsMattingRunning = false;
+            _log.Log("抠图", "服务已停止");
+        }
+        else
+        {
+            await Task.Run(() => _matting.Start());
+            IsMattingRunning = true;
+            _log.Log("抠图", "服务已启动");
+        }
+    }
+
+    // ── 自动合成 (batch mockup) ────────────────────────────────────────────
+
+    [RelayCommand]
+    private async Task ToggleSynthesisAsync()
+    {
+        if (IsSynthesisRunning)
+        {
+            _synthesisCts?.Cancel();
+            _synthesisCts    = null;
+            IsSynthesisRunning = false;
+            _log.Log("合成", "服务已停止");
+            return;
+        }
+
+        _synthesisCts      = new CancellationTokenSource();
+        IsSynthesisRunning = true;
+        _log.Log("合成", "服务已启动");
+
+        var inputFolder     = Path.Combine(RootPath, "50_成品队列");
+        var outputFolder    = Path.Combine(RootPath, "51_成品完成");
+        var templatesFolder = _settings.TemplatesFolder;
+        var cts             = _synthesisCts;
+
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                await _synthesis.RunAsync(inputFolder, outputFolder, templatesFolder, ct: cts.Token);
+                _log.Log("合成", "批次完成");
+            }
+            catch (OperationCanceledException) { }
+            catch (Exception ex) { _log.Log("合成", $"异常: {ex.Message}"); }
+            finally
+            {
+                Application.Current?.Dispatcher.Invoke(() => IsSynthesisRunning = false);
+            }
+        });
+
+        await Task.CompletedTask;
+    }
 }

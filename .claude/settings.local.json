@@ -5,7 +5,13 @@
       "PowerShell(dotnet build *)",
       "PowerShell(Get-Process *)",
       "PowerShell(git add *)",
-      "PowerShell(& \"C:\\\\Program Files\\\\Git\\\\bin\\\\git.exe\" -C \"C:\\\\Users\\\\Forrest Lin\\\\source\\\\repos\\\\Forrest-tech\\\\ImageAvatar\" add -A; & \"C:\\\\Program Files\\\\Git\\\\bin\\\\git.exe\" -C \"C:\\\\Users\\\\Forrest Lin\\\\source\\\\repos\\\\Forrest-tech\\\\ImageAvatar\" status)"
+      "PowerShell(& \"C:\\\\Program Files\\\\Git\\\\bin\\\\git.exe\" -C \"C:\\\\Users\\\\Forrest Lin\\\\source\\\\repos\\\\Forrest-tech\\\\ImageAvatar\" add -A; & \"C:\\\\Program Files\\\\Git\\\\bin\\\\git.exe\" -C \"C:\\\\Users\\\\Forrest Lin\\\\source\\\\repos\\\\Forrest-tech\\\\ImageAvatar\" status)",
+      "PowerShell(cd \"C:\\\\Users\\\\Forrest Lin\\\\source\\\\repos\\\\Forrest-tech\\\\ImageAvatar\\\\ImageAvatar\"; $proc = Start-Process -FilePath \"dotnet\" -ArgumentList \"run --no-build --project ImageAvatar.csproj\" -PassThru -RedirectStandardOutput \"C:\\\\Temp\\\\app_stdout.txt\" -RedirectStandardError \"C:\\\\Temp\\\\app_stderr.txt\"; Start-Sleep -Seconds 8; if \\(!$proc.HasExited\\) { \"App still running \\(PID $\\($proc.Id\\)\\) - no crash\"; $proc.Kill\\(\\) } else { \"App exited with code $\\($proc.ExitCode\\)\" }; Get-Content \"C:\\\\Temp\\\\app_stderr.txt\" -ErrorAction SilentlyContinue | Select-Object -First 40)",
+      "PowerShell($dll = Get-ChildItem \"C:\\\\Users\\\\Forrest Lin\\\\.nuget\\\\packages\\\\wpf-ui\\\\3.0.5\" -Recurse -Filter \"Wpf.Ui.dll\" | Select-Object -First 1 -ExpandProperty FullName; if \\($dll\\) { Add-Type -Path $dll; [System.Enum]::GetNames\\([Wpf.Ui.Controls.SymbolRegular]\\) | Where-Object { $_ -match \"^\\(Terminal|Home|Settings|Crop|Chat|Image|Cut|Layer|Document\\)\" } | Sort-Object | Select-Object -First 60 })",
+      "PowerShell($dll = \"C:\\\\Users\\\\Forrest Lin\\\\.nuget\\\\packages\\\\wpf-ui\\\\3.0.5\\\\lib\\\\net8.0-windows\\\\Wpf.Ui.dll\"; Add-Type -Path $dll; [System.Enum]::GetNames\\([Wpf.Ui.Controls.SymbolRegular]\\) | Where-Object { $_ -match \"^\\(Home|Settings|Crop|Image2|Cut|Layer|DocumentTable|Console|Terminal|Code|Apps\\)\" } | Sort-Object | Select-Object -First 50)",
+      "PowerShell(Test-Path *)",
+      "PowerShell($dll = \"C:\\\\Users\\\\Forrest Lin\\\\source\\\\repos\\\\Forrest-tech\\\\ImageAvatar\\\\ImageAvatar\\\\bin\\\\Debug\\\\net8.0-windows\\\\Wpf.Ui.dll\"; Add-Type -Path $dll; [System.Enum]::GetNames\\([Wpf.Ui.Controls.SymbolRegular]\\) | Where-Object { $_ -match \"^\\(Home|Setting|Crop|Image|Cut|Layer|Document|Terminal|Code|Prompt|Apps|Braces|Scissors\\)\" } | Sort-Object | Select-Object -First 60)",
+      "PowerShell(dotnet run *)"
     ]
   }
 }

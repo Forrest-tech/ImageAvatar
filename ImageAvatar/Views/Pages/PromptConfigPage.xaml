@@ -1,0 +1,102 @@
+<UserControl
+    x:Class="ImageAvatar.Views.Pages.PromptConfigPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    xmlns:vm="clr-namespace:ImageAvatar.ViewModels"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    d:DataContext="{d:DesignInstance Type=vm:PromptConfigViewModel}">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <Grid Margin="24">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="16" />
+                <ColumnDefinition Width="280" />
+            </Grid.ColumnDefinitions>
+
+            <!-- ── Left: parameters ── -->
+            <StackPanel Grid.Column="0">
+
+                <TextBlock Text="提示词配置" FontSize="22" FontWeight="SemiBold"
+                           Margin="0,0,0,20" />
+
+                <ui:Card Margin="0,0,0,16">
+                    <StackPanel>
+                        <TextBlock Text="正向提示词模板" FontSize="14" FontWeight="SemiBold"
+                                   Margin="0,0,0,8" />
+                        <TextBox Text="{Binding PromptTemplate, UpdateSourceTrigger=PropertyChanged}"
+                                 AcceptsReturn="True"
+                                 TextWrapping="Wrap"
+                                 Height="80"
+                                 VerticalScrollBarVisibility="Auto"
+                                 FontFamily="Consolas"
+                                 Margin="0,0,0,6" />
+                        <TextBlock Text="可用变量：{pattern}, {color}, {style}"
+                                   Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                   FontSize="11" />
+                    </StackPanel>
+                </ui:Card>
+
+                <ui:Card Margin="0,0,0,16">
+                    <StackPanel>
+                        <TextBlock Text="负向提示词" FontSize="14" FontWeight="SemiBold"
+                                   Margin="0,0,0,8" />
+                        <TextBox Text="{Binding NegativePrompt, UpdateSourceTrigger=PropertyChanged}"
+                                 AcceptsReturn="True"
+                                 TextWrapping="Wrap"
+                                 Height="60"
+                                 VerticalScrollBarVisibility="Auto"
+                                 FontFamily="Consolas" />
+                    </StackPanel>
+                </ui:Card>
+
+                <ui:Card Margin="0,0,0,16">
+                    <StackPanel>
+                        <TextBlock Text="生成参数" FontSize="14" FontWeight="SemiBold"
+                                   Margin="0,0,0,12" />
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="100" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="8" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="风格预设" VerticalAlignment="Center" />
+                            <ui:TextBox Grid.Row="0" Grid.Column="1"
+                                        Text="{Binding StylePreset, UpdateSourceTrigger=PropertyChanged}" />
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="随机种子" VerticalAlignment="Center" />
+                            <ui:TextBox Grid.Row="2" Grid.Column="1"
+                                        Text="{Binding Seed, UpdateSourceTrigger=PropertyChanged}"
+                                        PlaceholderText="-1 = 随机" />
+                        </Grid>
+                    </StackPanel>
+                </ui:Card>
+
+                <StackPanel Orientation="Horizontal">
+                    <ui:Button Content="保存配置" Appearance="Primary"
+                               Command="{Binding SaveCommand}"
+                               Margin="0,0,12,0" />
+                    <TextBlock Text="{Binding StatusText}" VerticalAlignment="Center"
+                               Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                </StackPanel>
+            </StackPanel>
+
+            <!-- ── Right: info panel ── -->
+            <ui:Card Grid.Column="2" VerticalAlignment="Top">
+                <StackPanel>
+                    <TextBlock Text="说明" FontSize="13" FontWeight="SemiBold"
+                               Margin="0,0,0,8" />
+                    <TextBlock TextWrapping="Wrap"
+                               Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                               Text="提示词模板用于自动为裁剪后的图案生成 Stable Diffusion 提示词。&#x0a;&#x0a;变量说明：&#x0a;• {pattern}：图案类型描述&#x0a;• {color}：主色调&#x0a;• {style}：风格标签&#x0a;&#x0a;种子 -1 表示每次随机生成。" />
+                </StackPanel>
+            </ui:Card>
+        </Grid>
+    </ScrollViewer>
+</UserControl>

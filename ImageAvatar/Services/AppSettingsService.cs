@@ -21,6 +21,22 @@ public class AppSettingsService
         Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
         "ImageAvatar", "templates");
 
+    // ── Global Config ──────────────────────────────────────────────────────
+    public bool   UseSpuFilename { get; set; } = false;
+    public string SpuPrefix      { get; set; } = "N";
+
+    // ── Matting Config ─────────────────────────────────────────────────────
+    public double MattingThreshold { get; set; } = 0.5;
+
+    // ── Synthesis Config ───────────────────────────────────────────────────
+    public bool PreserveAspectRatio { get; set; } = true;
+    public int  OutputQuality       { get; set; } = 95;
+
+    // ── Gen Config ─────────────────────────────────────────────────────────
+    public string GenApiEndpoint { get; set; } = "http://localhost:7860";
+    public int    GenSteps       { get; set; } = 20;
+    public double GenCfgScale    { get; set; } = 7.0;
+
     // ── Loaders ────────────────────────────────────────────────────────────
 
     /// <summary>

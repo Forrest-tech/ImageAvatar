@@ -3,9 +3,9 @@ using System.Windows.Controls;
 
 namespace ImageAvatar.Views.Pages;
 
-public partial class DashboardPage : UserControl
+public partial class ExcelGenPage : UserControl
 {
-    public DashboardPage(DashboardViewModel viewModel)
+    public ExcelGenPage(ExcelGenViewModel viewModel)
     {
         DataContext = viewModel;
         InitializeComponent();

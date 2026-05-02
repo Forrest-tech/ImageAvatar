@@ -3,9 +3,9 @@ using System.Windows.Controls;
 
 namespace ImageAvatar.Views.Pages;
 
-public partial class DashboardPage : UserControl
+public partial class CropConfigPage : UserControl
 {
-    public DashboardPage(DashboardViewModel viewModel)
+    public CropConfigPage(CropConfigViewModel viewModel)
     {
         DataContext = viewModel;
         InitializeComponent();

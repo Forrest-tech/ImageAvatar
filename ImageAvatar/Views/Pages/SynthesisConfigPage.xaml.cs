@@ -3,9 +3,9 @@ using System.Windows.Controls;
 
 namespace ImageAvatar.Views.Pages;
 
-public partial class DashboardPage : UserControl
+public partial class SynthesisConfigPage : UserControl
 {
-    public DashboardPage(DashboardViewModel viewModel)
+    public SynthesisConfigPage(SynthesisConfigViewModel viewModel)
     {
         DataContext = viewModel;
         InitializeComponent();

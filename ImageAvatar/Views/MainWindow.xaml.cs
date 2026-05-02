@@ -1,27 +1,26 @@
 using ImageAvatar.ViewModels;
 using ImageAvatar.Views.Pages;
 using System.Windows;
-using System.Windows.Controls;
+using Wpf.Ui;
 using Wpf.Ui.Appearance;
 
 namespace ImageAvatar.Views;
 
 public partial class MainWindow : Window
 {
-    public MainWindow(MainWindowViewModel viewModel)
+    public MainWindow(
+        MainWindowViewModel viewModel,
+        INavigationService  navigationService,
+        IPageService        pageService)
     {
         DataContext = viewModel;
         InitializeComponent();
+
         ApplicationThemeManager.Apply(ApplicationTheme.Dark);
-        ShowPage(typeof(DashboardPage));
-    }
 
-    private void OnTabClick(object sender, RoutedEventArgs e)
-    {
-        if (sender is RadioButton { Tag: Type pageType })
-            ShowPage(pageType);
-    }
+        RootNavigation.SetPageService(pageService);
+        navigationService.SetNavigationControl(RootNavigation);
 
-    private void ShowPage(Type pageType)
-        => PageContent.Content = App.Services.GetService(pageType);
+        Loaded += (_, _) => navigationService.Navigate(typeof(DashboardPage));
+    }
 }
