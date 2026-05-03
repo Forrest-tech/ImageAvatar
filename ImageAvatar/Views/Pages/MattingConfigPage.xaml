@@ -23,9 +23,64 @@
                 <TextBlock Text="自动抠图配置" FontSize="22" FontWeight="SemiBold"
                            Margin="0,0,0,20" />
 
+                <!-- U-2-Net (default / fallback engine) -->
                 <ui:Card Margin="0,0,0,16">
                     <StackPanel>
-                        <TextBlock Text="AI 模型 (U-2-Net)" FontSize="14" FontWeight="SemiBold"
+                        <TextBlock Text="U-2-Net 模型 (默认抠图引擎)" FontSize="14" FontWeight="SemiBold"
+                                   Margin="0,0,0,4" />
+                        <TextBlock Text="无需配置，应用启动时自动加载。如未下载，可一键获取（约 176 MB）。"
+                                   TextWrapping="Wrap"
+                                   FontSize="12"
+                                   Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                   Margin="0,0,0,12" />
+
+                        <Grid Margin="0,0,0,12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="8" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="8" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0"
+                                       Text="{Binding U2NetStatus}"
+                                       VerticalAlignment="Center"
+                                       Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                            <ui:Button Grid.Column="2" Content="下载 U-2-Net"
+                                       Appearance="Primary"
+                                       Command="{Binding DownloadU2NetCommand}"
+                                       IsEnabled="{Binding CanStartDownload}" />
+                            <ui:Button Grid.Column="4" Content="取消"
+                                       Appearance="Secondary"
+                                       Command="{Binding CancelDownloadCommand}"
+                                       Visibility="{Binding IsDownloading, Converter={StaticResource BoolToVis}}" />
+                        </Grid>
+
+                        <StackPanel Visibility="{Binding IsDownloading, Converter={StaticResource BoolToVis}}">
+                            <ProgressBar Minimum="0" Maximum="100"
+                                         Value="{Binding DownloadProgress}"
+                                         Height="6" Margin="0,0,0,6" />
+                            <TextBlock Text="{Binding DownloadStatus}"
+                                       FontSize="12"
+                                       Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                        </StackPanel>
+                        <TextBlock Text="{Binding DownloadStatus}"
+                                   FontSize="12"
+                                   Margin="0,4,0,0"
+                                   Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                   Visibility="{Binding IsDownloading, Converter={StaticResource InverseBoolToVis}}" />
+                    </StackPanel>
+                </ui:Card>
+
+                <!-- Optional PaddleSeg / MODNet model -->
+                <ui:Card Margin="0,0,0,16">
+                    <StackPanel>
+                        <TextBlock Text="高级：PaddleSeg / MODNet 模型 (可选)" FontSize="14" FontWeight="SemiBold"
+                                   Margin="0,0,0,4" />
+                        <TextBlock Text="若已加载，将优先于 U-2-Net 使用。留空则始终使用 U-2-Net。"
+                                   TextWrapping="Wrap"
+                                   FontSize="12"
+                                   Foreground="{DynamicResource TextFillColorSecondaryBrush}"
                                    Margin="0,0,0,12" />
                         <Grid Margin="0,0,0,12">
                             <Grid.ColumnDefinitions>
@@ -37,7 +92,7 @@
                             </Grid.ColumnDefinitions>
                             <ui:TextBox Grid.Column="0"
                                         Text="{Binding ModelPath}"
-                                        PlaceholderText="u2net.onnx 文件路径"
+                                        PlaceholderText="PP-Matting / MODNet .onnx 文件路径"
                                         IsReadOnly="True" />
                             <ui:Button Grid.Column="2" Content="浏览"
                                        Appearance="Secondary"
@@ -57,22 +112,25 @@
                     </StackPanel>
                 </ui:Card>
 
+                <!-- Input folder -->
                 <ui:Card Margin="0,0,0,16">
                     <StackPanel>
-                        <TextBlock Text="抠图参数" FontSize="14" FontWeight="SemiBold"
+                        <TextBlock Text="输入文件夹" FontSize="14" FontWeight="SemiBold"
                                    Margin="0,0,0,12" />
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="置信度阈值" VerticalAlignment="Center"
-                                       Width="90" Margin="0,0,8,0" />
-                            <Slider Minimum="0.1" Maximum="0.9"
-                                    Value="{Binding Threshold}"
-                                    Width="200"
-                                    TickFrequency="0.05"
-                                    IsSnapToTickEnabled="True"
-                                    Margin="0,0,8,0" />
-                            <TextBlock Text="{Binding Threshold, StringFormat={}{0:F2}}"
-                                       VerticalAlignment="Center" Width="36" />
-                        </StackPanel>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="8" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <ui:TextBox Grid.Column="0"
+                                        Text="{Binding InputFolder}"
+                                        PlaceholderText="留空则使用 {工作区}/30_抠图队列"
+                                        IsReadOnly="True" />
+                            <ui:Button Grid.Column="2" Content="浏览"
+                                       Appearance="Secondary"
+                                       Command="{Binding BrowseInputFolderCommand}" />
+                        </Grid>
                     </StackPanel>
                 </ui:Card>
 
@@ -88,7 +146,7 @@
                                Margin="0,0,0,8" />
                     <TextBlock TextWrapping="Wrap"
                                Foreground="{DynamicResource TextFillColorSecondaryBrush}"
-                               Text="使用 U-2-Net ONNX 模型（约 176 MB）自动去除图片背景。&#x0a;&#x0a;模型文件需手动下载并放置至指定路径后加载。&#x0a;&#x0a;置信度阈值越高，边缘越锐利，但细节保留越少；建议默认值 0.5。" />
+                               Text="使用 PaddleSeg 导出的 ONNX 抠图模型（PP-Matting、MODNet 等）。&#x0a;&#x0a;用 paddle2onnx 将模型导出为 .onnx 文件后，通过&quot;浏览&quot;选择并加载。&#x0a;&#x0a;输入文件夹留空时，服务从 {工作区}/30_抠图队列 读取图片，结果输出至 31_抠图完成。&#x0a;&#x0a;支持 JPG / PNG / WebP；输出始终为透明 PNG。" />
                 </StackPanel>
             </ui:Card>
         </Grid>

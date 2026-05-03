@@ -232,13 +232,12 @@
                         </StackPanel>
 
                         <TextBlock Margin="0,0,0,12" FontSize="12"
-                                   Foreground="{DynamicResource TextFillColorSecondaryBrush}">
+                                   Text="{Binding MattingStatusText}">
                             <TextBlock.Style>
                                 <Style TargetType="TextBlock">
-                                    <Setter Property="Text" Value="● 未启动" />
+                                    <Setter Property="Foreground" Value="{DynamicResource TextFillColorSecondaryBrush}" />
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding IsMattingRunning}" Value="True">
-                                            <Setter Property="Text"       Value="● 运行中" />
                                             <Setter Property="Foreground" Value="#4CAF50" />
                                         </DataTrigger>
                                     </Style.Triggers>
@@ -283,13 +282,12 @@
                         </StackPanel>
 
                         <TextBlock Margin="0,0,0,12" FontSize="12"
-                                   Foreground="{DynamicResource TextFillColorSecondaryBrush}">
+                                   Text="{Binding SynthesisStatusText}">
                             <TextBlock.Style>
                                 <Style TargetType="TextBlock">
-                                    <Setter Property="Text" Value="● 未启动" />
+                                    <Setter Property="Foreground" Value="{DynamicResource TextFillColorSecondaryBrush}" />
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding IsSynthesisRunning}" Value="True">
-                                            <Setter Property="Text"       Value="● 运行中" />
                                             <Setter Property="Foreground" Value="#4CAF50" />
                                         </DataTrigger>
                                     </Style.Triggers>

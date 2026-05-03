@@ -26,7 +26,13 @@ public class AppSettingsService
     public string SpuPrefix      { get; set; } = "N";
 
     // ── Matting Config ─────────────────────────────────────────────────────
-    public double MattingThreshold { get; set; } = 0.5;
+    public double MattingThreshold  { get; set; } = 0.5;
+
+    // Path to PaddleSeg-exported matting ONNX model (PP-Matting / MODNet / etc.)
+    public string MattingModelPath  { get; set; } = string.Empty;
+
+    // Input folder for the matting batch; empty = use {WorkspaceRoot}/30_抠图队列
+    public string MattingInputFolder { get; set; } = string.Empty;
 
     // ── Synthesis Config ───────────────────────────────────────────────────
     public bool PreserveAspectRatio { get; set; } = true;

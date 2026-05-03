@@ -39,6 +39,7 @@ public partial class App : Application
                 services.AddSingleton<IQcService,           QcService>();
                 services.AddSingleton<ILogService,          LogService>();
                 services.AddSingleton<ICropService,         CropService>();
+                services.AddSingleton<IMattingService,      MattingService>();
                 services.AddSingleton<IPromptService,       PromptService>();
                 services.AddSingleton<IGenService,          GenService>();
 
@@ -126,6 +127,21 @@ public partial class App : Application
             catch (Exception ex)
             {
                 log.Log("模型", $"加载失败：{ex.Message}");
+            }
+        }
+
+        var matting = _host.Services.GetRequiredService<IMattingService>();
+        if (!string.IsNullOrWhiteSpace(settings.MattingModelPath) &&
+            System.IO.File.Exists(settings.MattingModelPath))
+        {
+            try
+            {
+                await matting.LoadModelAsync(settings.MattingModelPath);
+                log.Log("抠图", $"已自动加载抠图模型：{settings.MattingModelPath}");
+            }
+            catch (Exception ex)
+            {
+                log.Log("抠图", $"加载失败：{ex.Message}（将使用 U-2-Net 备用引擎）");
             }
         }
 

@@ -17,17 +17,39 @@ public class StorageService : IStorageService, IDisposable
         get => _rootPath;
         set
         {
-            _rootPath = value;
+            _rootPath = NormalizeWorkspaceRoot(value);
             RebuildPaths();
         }
     }
 
     public IReadOnlyList<PipelineFolder> Folders => _folders;
 
+    /// <summary>
+    /// If the user browsed *into* a pipeline folder (e.g. picked 00_提图队列 itself
+    /// as the workspace), use its parent as the real workspace root. This keeps
+    /// 30_抠图队列, 31_抠图完成, etc. as siblings of 00_提图队列 instead of nested
+    /// inside it.
+    /// </summary>
+    private static string NormalizeWorkspaceRoot(string path)
+    {
+        if (string.IsNullOrWhiteSpace(path)) return path;
+        var leaf = Path.GetFileName(path.TrimEnd(Path.DirectorySeparatorChar,
+                                                 Path.AltDirectorySeparatorChar));
+        string[] pipelineNames =
+        [
+            "00_提图队列", "01_提图完成",
+            "30_抠图队列", "31_抠图完成",
+            "50_成品队列", "51_成品完成"
+        ];
+        if (pipelineNames.Any(n => string.Equals(n, leaf, StringComparison.OrdinalIgnoreCase)))
+            return Path.GetDirectoryName(path) ?? path;
+        return path;
+    }
+
     public StorageService(AppSettingsService settings)
     {
         _rootPath = !string.IsNullOrWhiteSpace(settings.WorkspaceRoot)
-            ? settings.WorkspaceRoot
+            ? NormalizeWorkspaceRoot(settings.WorkspaceRoot)
             : Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 
         _folders =
