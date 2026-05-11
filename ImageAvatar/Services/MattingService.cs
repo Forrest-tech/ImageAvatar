@@ -323,20 +323,47 @@ public sealed class MattingService : IMattingService, IDisposable
 
     // ── Fallback: classical CV matting (no ML model required) ─────────────
     //
-    // Two-stage design extraction tuned for POD garment photos:
+    // Two-stage design extraction tuned for POD garment photos, adaptive to
+    // both DARK and LIGHT/WHITE garments:
+    //
     //   Stage 1 — GrabCut isolates the garment from the model/background.
-    //   Stage 2 — colour-distance thresholding inside the garment isolates the
-    //             printed design (skull graphic, logo, etc.) from the fabric.
-    // For images without a clear design (flat product shots, solid-colour
-    // garments) it gracefully degrades to returning the garment mask itself.
+    //   Stage 2 — colour-distance scoring inside the garment isolates the
+    //             printed design from the fabric.
+    //
+    // For DARK garments (median LAB-L < ~140) we use full LAB Euclidean
+    // distance from the median garment colour — anything brighter or more
+    // saturated counts as design.
+    //
+    // For LIGHT/WHITE garments (median LAB-L > ~190) the LAB metric falsely
+    // flags shadows on the fabric as design (a shadow on white has LAB
+    // distance ~60 from pure white, well above the design threshold).
+    // Instead we score each pixel by:
+    //
+    //     designScore = max(chromaDist * 3, lumDrop − shadowFloor)
+    //
+    //   where chromaDist = sqrt((a-gA)² + (b-gB)²)  → colour saturation diff
+    //         lumDrop    = max(0, gL − L)            → only DARKER counts
+    //         shadowFloor = 50 LAB units             → drops below this are
+    //                                                  treated as shadow noise
+    //
+    // Shadows have low chromaDist (same hue as garment) and modest lumDrop
+    // (typically ≤ 60), so they score near zero. Coloured or starkly-dark
+    // design parts score high.
+    //
+    // For mid-luminance garments (140 ≤ L ≤ 190) we linearly blend the two.
 
     private const int    GrabCutTargetSize          = 512;
     private const int    GrabCutIterations          = 3;
-    private const double StrongDesignLabDistance    = 25.0;   // pixels clearly NOT shirt colour
+    private const double StrongDesignDistance       = 25.0;   // pixels clearly NOT garment
     private const double SoftAlphaLowDistance       = 6.0;    // ramp start (alpha = 0)
     private const double SoftAlphaHighDistance      = 28.0;   // ramp end   (alpha = 255)
+    private const double LightGarmentLBlendStart    = 140.0;  // L below this → 100 % LAB metric
+    private const double LightGarmentLBlendEnd      = 190.0;  // L above this → 100 % light-shirt metric
+    private const double LightShirtShadowFloor      = 50.0;   // LAB-luminance drops below this = shadow
     private const double MinDesignFractionOfGarment = 0.005;
     private const double MaxDesignFractionOfGarment = 0.95;
+    private const double MinComponentEdgeDensity    = 0.04;   // smooth shadow blobs score < 0.02
+    private const double NearbyComponentDistanceFraction = 0.6; // multiplied by main-blob extent
 
     private static Mat FallbackMask(Mat original)
     {
@@ -368,74 +395,142 @@ public sealed class MattingService : IMattingService, IDisposable
         Cv2.CvtColor(samplePix, sampleLab, ColorConversionCodes.BGR2Lab);
         var gLab = sampleLab.At<Vec3b>(0, 0);
 
-        // Vectorised LAB distance from garment colour:
-        //   d  = sqrt((L-gL)² + (A-gA)² + (B-gB)²)
         using var lab = new Mat();
         Cv2.CvtColor(original, lab, ColorConversionCodes.BGR2Lab);
         using var labF = new Mat();
         lab.ConvertTo(labF, MatType.CV_32FC3);
-        using var diff = new Mat();
-        Cv2.Subtract(labF, new Scalar(gLab.Item0, gLab.Item1, gLab.Item2), diff);
-        using var sq = new Mat();
-        Cv2.Multiply(diff, diff, sq);
-        Mat[] channels = Cv2.Split(sq);
-        using var c0 = channels[0]; using var c1 = channels[1]; using var c2 = channels[2];
-        using var sumSq = new Mat();
-        Cv2.Add(c0, c1, sumSq);
-        Cv2.Add(sumSq, c2, sumSq);
-        using var dist = new Mat();
-        Cv2.Sqrt(sumSq, dist);
+        Mat[] labChans = Cv2.Split(labF);
+        using var Lc = labChans[0]; using var Ac = labChans[1]; using var Bc = labChans[2];
 
-        // Stage A — strong design pixels: clearly NOT garment colour.
+        // Adaptive distance metric — blend LAB Euclidean (good for dark
+        // garments) and the light-shirt score (rejects shadows on white) by
+        // garment lightness.
+        using var distLab   = ComputeLabDistance(labF, gLab);
+        using var distLight = ComputeLightShirtScore(Lc, Ac, Bc, gLab);
+        double lightWeight  = Math.Clamp(
+            (gLab.Item0 - LightGarmentLBlendStart) /
+            (LightGarmentLBlendEnd - LightGarmentLBlendStart), 0.0, 1.0);
+        using var distLab32   = new Mat(); distLab.ConvertTo(distLab32, MatType.CV_32FC1, 1 - lightWeight);
+        using var distLight32 = new Mat(); distLight.ConvertTo(distLight32, MatType.CV_32FC1, lightWeight);
+        using var dist = new Mat();
+        Cv2.Add(distLab32, distLight32, dist);
+
+        // ── Sharp-edge map (Canny) for shadow rejection ────────────────────
+        // Designs are sharp ink prints with edges every few pixels. Shadows
+        // live in smooth gradients with no edges. Dilate the edges by a small
+        // radius (~1 % of shorter side) so that the *interior* of thick design
+        // strokes — which are flat ink between two edges — also qualifies.
+        using var gray = new Mat();
+        Cv2.CvtColor(original, gray, ColorConversionCodes.BGR2GRAY);
+        using var grayBlur = new Mat();
+        Cv2.GaussianBlur(gray, grayBlur, new Size(3, 3), 0);
+        using var edges = new Mat();
+        Cv2.Canny(grayBlur, edges, 60, 150);
+        int edgeDilate = Math.Max(7, Math.Min(origW, origH) / 100);
+        using var edgesDilated = new Mat();
+        Cv2.Dilate(edges, edgesDilated,
+            Cv2.GetStructuringElement(MorphShapes.Ellipse, new Size(edgeDilate, edgeDilate)));
+
+        // Stage A — strong design pixels: high colour-distance AND near a sharp
+        // Canny edge. Pixel-level edge gating separates shadows from design
+        // BEFORE morphological close has a chance to merge them.
         using var strongF = new Mat();
-        Cv2.Threshold(dist, strongF, StrongDesignLabDistance, 255, ThresholdTypes.Binary);
+        Cv2.Threshold(dist, strongF, StrongDesignDistance, 255, ThresholdTypes.Binary);
+        using var strongRaw = new Mat();
+        strongF.ConvertTo(strongRaw, MatType.CV_8UC1);
+        Cv2.BitwiseAnd(strongRaw, garment, strongRaw);
         using var strong = new Mat();
-        strongF.ConvertTo(strong, MatType.CV_8UC1);
-        Cv2.BitwiseAnd(strong, garment, strong);
+        Cv2.BitwiseAnd(strongRaw, edgesDilated, strong);
         using var kOpen = Cv2.GetStructuringElement(MorphShapes.Ellipse, new Size(3, 3));
         Cv2.MorphologyEx(strong, strong, MorphTypes.Open, kOpen);
 
-        // Stage B — close with a kernel scaled to image size (~3 % of the
-        // shorter side) so smoke wisps and detached design parts merge into
-        // one main blob.
-        int closeKernelSize = Math.Max(15, Math.Min(origW, origH) / 30);
+        // Stage B — close with a kernel ~5 % of the shorter side so multi-part
+        // designs (illustration + text + logo) merge into one main blob.
+        int closeKernelSize = Math.Max(25, Math.Min(origW, origH) / 18);
         using var kClose = Cv2.GetStructuringElement(
             MorphShapes.Ellipse, new Size(closeKernelSize, closeKernelSize));
         using var merged = new Mat();
         Cv2.MorphologyEx(strong, merged, MorphTypes.Close, kClose);
 
-        // Pick the largest merged blob — that is the design region.
         using var labels    = new Mat();
         using var stats     = new Mat();
         using var centroids = new Mat();
         int numLabels = Cv2.ConnectedComponentsWithStats(merged, labels, stats, centroids);
         if (numLabels <= 1) return garment.Clone();
 
-        int maxArea = 0, maxIdx = 1;
+        // Pick the largest *edge-rich* blob — components below MinComponentEdgeDensity
+        // are smooth shadow regions even if they have high colour distance.
+        int chosenIdx = -1;
+        int chosenArea = 0;
         for (int i = 1; i < numLabels; i++)
         {
             int a = stats.At<int>(i, (int)ConnectedComponentsTypes.Area);
-            if (a > maxArea) { maxArea = a; maxIdx = i; }
+            if (a < garmentArea * 0.0005) continue;
+            using var compMask = new Mat();
+            Cv2.Compare(labels, new Scalar(i), compMask, CmpType.EQ);
+            using var edgesInComp = new Mat();
+            Cv2.BitwiseAnd(edges, compMask, edgesInComp);
+            double density = (double)Cv2.CountNonZero(edgesInComp) / a;
+            if (density < MinComponentEdgeDensity) continue;
+            if (a > chosenArea) { chosenArea = a; chosenIdx = i; }
         }
-        double frac = (double)maxArea / Math.Max(1, garmentArea);
+        if (chosenIdx < 0)
+        {
+            // No edge-rich blob found — fall back to plain largest.
+            for (int i = 1; i < numLabels; i++)
+            {
+                int a = stats.At<int>(i, (int)ConnectedComponentsTypes.Area);
+                if (a > chosenArea) { chosenArea = a; chosenIdx = i; }
+            }
+            if (chosenIdx < 0) return garment.Clone();
+        }
+        double frac = (double)chosenArea / Math.Max(1, garmentArea);
         if (frac < MinDesignFractionOfGarment || frac > MaxDesignFractionOfGarment)
-            return garment.Clone();   // no clear design → keep whole garment
+            return garment.Clone();
 
-        using var mainBlob = new Mat();
-        Cv2.Compare(labels, new Scalar(maxIdx), mainBlob, CmpType.EQ);
+        // Group: keep the chosen blob plus any *edge-rich* blob whose centroid
+        // is within NearbyComponentDistanceFraction × main-blob-extent of the
+        // chosen blob's centroid. Distance-from-centroid is tighter than
+        // bbox-containment and rejects shadow blobs at the body edges.
+        double mainCx = centroids.At<double>(chosenIdx, 0);
+        double mainCy = centroids.At<double>(chosenIdx, 1);
+        int mbw = stats.At<int>(chosenIdx, (int)ConnectedComponentsTypes.Width);
+        int mbh = stats.At<int>(chosenIdx, (int)ConnectedComponentsTypes.Height);
+        double maxDistFromMain = Math.Max(mbw, mbh) * NearbyComponentDistanceFraction;
 
-        // Stage C — fill the design's external contour to define the ROI in
-        // which design pixels live. The morphological close in Stage B may
-        // have padded the blob outwards; that padding is part of the ROI but
-        // doesn't get auto-promoted to opaque (Stage D handles that).
-        Cv2.FindContours(mainBlob, out var contours, out _,
+        using var grouped = new Mat(origH, origW, MatType.CV_8UC1, Scalar.Black);
+        for (int i = 1; i < numLabels; i++)
+        {
+            int a = stats.At<int>(i, (int)ConnectedComponentsTypes.Area);
+            if (a < garmentArea * 0.0005) continue;
+
+            double cx = centroids.At<double>(i, 0);
+            double cy = centroids.At<double>(i, 1);
+            double d  = Math.Sqrt((cx - mainCx) * (cx - mainCx) + (cy - mainCy) * (cy - mainCy));
+            if (d > maxDistFromMain) continue;
+
+            using var compMask = new Mat();
+            Cv2.Compare(labels, new Scalar(i), compMask, CmpType.EQ);
+            using var edgesInComp = new Mat();
+            Cv2.BitwiseAnd(edges, compMask, edgesInComp);
+            if ((double)Cv2.CountNonZero(edgesInComp) / a < MinComponentEdgeDensity) continue;
+
+            Cv2.BitwiseOr(grouped, compMask, grouped);
+        }
+
+        // Final close so the kept components merge into one outline.
+        using var groupedClosed = new Mat();
+        Cv2.MorphologyEx(grouped, groupedClosed, MorphTypes.Close, kClose);
+
+        // Stage C — fill the merged outline to define the ROI in which design
+        // pixels live.
+        Cv2.FindContours(groupedClosed, out var contours, out _,
             RetrievalModes.External, ContourApproximationModes.ApproxSimple);
         if (contours.Length == 0) return garment.Clone();
-        var outerContour = contours.OrderByDescending(c => Cv2.ContourArea(c)).First();
-
         using var filled = new Mat(origH, origW, MatType.CV_8UC1, Scalar.Black);
-        Cv2.DrawContours(filled, [outerContour], -1, Scalar.White, thickness: -1);
-        Cv2.BitwiseAnd(filled, garment, filled);   // never extend outside garment
+        foreach (var c in contours)
+            Cv2.DrawContours(filled, [c], -1, Scalar.White, thickness: -1);
+        Cv2.BitwiseAnd(filled, garment, filled);
 
         // Stage D — pure soft alpha (no floor) inside the ROI; 0 outside.
         // Background-coloured pixels inside the ROI naturally fall to alpha 0
@@ -459,6 +554,55 @@ public sealed class MattingService : IMattingService, IDisposable
         // Slight feather for anti-aliased edges (small kernel — preserves detail).
         Cv2.GaussianBlur(result, result, new Size(3, 3), sigmaX: 0.7);
         return result;
+    }
+
+    /// <summary>Full LAB Euclidean distance from `gLab`, returned as 32-bit float Mat.</summary>
+    private static Mat ComputeLabDistance(Mat labF, Vec3b gLab)
+    {
+        using var diff = new Mat();
+        Cv2.Subtract(labF, new Scalar(gLab.Item0, gLab.Item1, gLab.Item2), diff);
+        using var sq = new Mat();
+        Cv2.Multiply(diff, diff, sq);
+        Mat[] channels = Cv2.Split(sq);
+        using var c0 = channels[0]; using var c1 = channels[1]; using var c2 = channels[2];
+        using var sumSq = new Mat();
+        Cv2.Add(c0, c1, sumSq);
+        Cv2.Add(sumSq, c2, sumSq);
+        var dist = new Mat();
+        Cv2.Sqrt(sumSq, dist);
+        return dist;
+    }
+
+    /// <summary>
+    /// Light-shirt-specific design score: combines chroma distance (catches
+    /// coloured designs) with luminance drop above the shadow floor (catches
+    /// dark line work). Shadows score near zero.
+    /// </summary>
+    private static Mat ComputeLightShirtScore(Mat Lc, Mat Ac, Mat Bc, Vec3b gLab)
+    {
+        // chromaDist = sqrt((A-gA)² + (B-gB)²)
+        using var dA = new Mat(); Cv2.Subtract(Ac, new Scalar(gLab.Item1), dA);
+        using var dB = new Mat(); Cv2.Subtract(Bc, new Scalar(gLab.Item2), dB);
+        using var dA2 = new Mat(); Cv2.Multiply(dA, dA, dA2);
+        using var dB2 = new Mat(); Cv2.Multiply(dB, dB, dB2);
+        using var chromaSq = new Mat(); Cv2.Add(dA2, dB2, chromaSq);
+        using var chromaDist = new Mat(); Cv2.Sqrt(chromaSq, chromaDist);
+
+        // lumScored = max(0, max(0, gL − L) − shadowFloor)
+        using var lumDrop = new Mat();
+        Cv2.Subtract(new Scalar(gLab.Item0), Lc, lumDrop);
+        using var lumPos = new Mat();
+        Cv2.Max(lumDrop, new Scalar(0), lumPos);
+        using var lumScored = new Mat();
+        Cv2.Subtract(lumPos, new Scalar(LightShirtShadowFloor), lumScored);
+        Cv2.Max(lumScored, new Scalar(0), lumScored);
+
+        // score = max(chromaDist * 3, lumScored)
+        using var chromaScaled = new Mat();
+        chromaDist.ConvertTo(chromaScaled, MatType.CV_32FC1, 3.0);
+        var score = new Mat();
+        Cv2.Max(chromaScaled, lumScored, score);
+        return score;
     }
 
     private static (int b, int g, int r) SampleMedianColor(Mat bgr, Mat mask)

@@ -11,7 +11,9 @@
       "PowerShell($dll = \"C:\\\\Users\\\\Forrest Lin\\\\.nuget\\\\packages\\\\wpf-ui\\\\3.0.5\\\\lib\\\\net8.0-windows\\\\Wpf.Ui.dll\"; Add-Type -Path $dll; [System.Enum]::GetNames\\([Wpf.Ui.Controls.SymbolRegular]\\) | Where-Object { $_ -match \"^\\(Home|Settings|Crop|Image2|Cut|Layer|DocumentTable|Console|Terminal|Code|Apps\\)\" } | Sort-Object | Select-Object -First 50)",
       "PowerShell(Test-Path *)",
       "PowerShell($dll = \"C:\\\\Users\\\\Forrest Lin\\\\source\\\\repos\\\\Forrest-tech\\\\ImageAvatar\\\\ImageAvatar\\\\bin\\\\Debug\\\\net8.0-windows\\\\Wpf.Ui.dll\"; Add-Type -Path $dll; [System.Enum]::GetNames\\([Wpf.Ui.Controls.SymbolRegular]\\) | Where-Object { $_ -match \"^\\(Home|Setting|Crop|Image|Cut|Layer|Document|Terminal|Code|Prompt|Apps|Braces|Scissors\\)\" } | Sort-Object | Select-Object -First 60)",
-      "PowerShell(dotnet run *)"
+      "PowerShell(dotnet run *)",
+      "PowerShell(\"\")",
+      "PowerShell(\"=== 31_��ͼ��� \\(3 most recent\\) ===\")"
     ]
   }
 }
