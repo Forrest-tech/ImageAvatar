@@ -6,6 +6,7 @@ using ImageAvatar.Views.Pages;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using System.Runtime.InteropServices;
 using System.Windows;
 using Wpf.Ui;
 
@@ -16,6 +17,21 @@ public partial class App : Application
     private readonly IHost _host;
 
     public static IServiceProvider Services => ((App)Current)._host.Services;
+
+    [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+    private static extern IntPtr AddDllDirectory(string newDirectory);
+
+    static App()
+    {
+        // Ensure OpenCvSharp and ONNX native DLLs are findable.
+        // For AnyCPU framework-dependent builds, NuGet places them in
+        // runtimes/win-x64/native/ — AddDllDirectory registers that path
+        // so [DllImport] resolution works without a full publish.
+        var rid = Environment.Is64BitProcess ? "win-x64" : "win-x86";
+        var nativeDir = System.IO.Path.Combine(AppContext.BaseDirectory, "runtimes", rid, "native");
+        if (System.IO.Directory.Exists(nativeDir))
+            AddDllDirectory(nativeDir);
+    }
 
     public App()
     {

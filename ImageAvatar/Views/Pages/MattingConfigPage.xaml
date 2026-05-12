@@ -23,12 +23,12 @@
                 <TextBlock Text="自动抠图配置" FontSize="22" FontWeight="SemiBold"
                            Margin="0,0,0,20" />
 
-                <!-- U-2-Net (default / fallback engine) -->
+                <!-- RMBG-2.0 (default / fallback engine) -->
                 <ui:Card Margin="0,0,0,16">
                     <StackPanel>
-                        <TextBlock Text="U-2-Net 模型 (默认抠图引擎)" FontSize="14" FontWeight="SemiBold"
+                        <TextBlock Text="IS-Net 模型 (默认抠图引擎)" FontSize="14" FontWeight="SemiBold"
                                    Margin="0,0,0,4" />
-                        <TextBlock Text="无需配置，应用启动时自动加载。如未下载，可一键获取（约 176 MB）。"
+                        <TextBlock Text="无需配置，应用启动时自动加载。如未下载，可一键获取（约 176 MB）。比 U-2-Net 精度更高，细线保留更好。"
                                    TextWrapping="Wrap"
                                    FontSize="12"
                                    Foreground="{DynamicResource TextFillColorSecondaryBrush}"
@@ -43,12 +43,12 @@
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
                             <TextBlock Grid.Column="0"
-                                       Text="{Binding U2NetStatus}"
+                                       Text="{Binding BgModelStatus}"
                                        VerticalAlignment="Center"
                                        Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
-                            <ui:Button Grid.Column="2" Content="下载 U-2-Net"
+                            <ui:Button Grid.Column="2" Content="下载 IS-Net"
                                        Appearance="Primary"
-                                       Command="{Binding DownloadU2NetCommand}"
+                                       Command="{Binding DownloadBgModelCommand}"
                                        IsEnabled="{Binding CanStartDownload}" />
                             <ui:Button Grid.Column="4" Content="取消"
                                        Appearance="Secondary"
@@ -146,7 +146,7 @@
                                Margin="0,0,0,8" />
                     <TextBlock TextWrapping="Wrap"
                                Foreground="{DynamicResource TextFillColorSecondaryBrush}"
-                               Text="使用 PaddleSeg 导出的 ONNX 抠图模型（PP-Matting、MODNet 等）。&#x0a;&#x0a;用 paddle2onnx 将模型导出为 .onnx 文件后，通过&quot;浏览&quot;选择并加载。&#x0a;&#x0a;输入文件夹留空时，服务从 {工作区}/30_抠图队列 读取图片，结果输出至 31_抠图完成。&#x0a;&#x0a;支持 JPG / PNG / WebP；输出始终为透明 PNG。" />
+                               Text="默认引擎 IS-Net：精度高，细线保留好（约 176 MB）。点击 &quot;下载 IS-Net&quot; 一键获取。&#x0a;&#x0a;高级引擎（可选）：支持 PaddleSeg 导出的 ONNX 模型（PP-Matting、MODNet 等），优先级高于 IS-Net。&#x0a;&#x0a;输入文件夹留空时，服务从 {工作区}/30_抠图队列 读取图片，结果输出至 31_抠图完成。&#x0a;&#x0a;支持 JPG / PNG / WebP；输出始终为透明 PNG。" />
                 </StackPanel>
             </ui:Card>
         </Grid>

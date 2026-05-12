@@ -12,7 +12,7 @@ public class AppSettingsService
 
     public string ModelPath { get; set; } = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-        "ImageAvatar", "models", "u2net.onnx");
+        "ImageAvatar", "models", "rmbg20.onnx");
 
     public string WorkspaceRoot { get; set; } =
         Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);

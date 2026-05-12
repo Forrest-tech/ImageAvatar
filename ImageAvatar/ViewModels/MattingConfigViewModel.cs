@@ -9,14 +9,18 @@ namespace ImageAvatar.ViewModels;
 
 public partial class MattingConfigViewModel : ObservableObject
 {
-    // rembg's release-hosted U-2-Net weights (~176 MB). Stable URL since 2020.
-    private const string U2NetDownloadUrl =
-        "https://github.com/danielgatis/rembg/releases/download/v0.0.0/u2net.onnx";
+    // IS-Net General Use weights (~176 MB).
+    // Hosted on rembg's GitHub releases — public, no authentication required.
+    // Input 1024×1024; significantly better detail than U-2-Net 320×320.
+    private const string BgModelDownloadUrl =
+        "https://github.com/danielgatis/rembg/releases/download/v0.0.0/isnet-general-use.onnx";
+    private const double BgModelSizeMbApprox = 176.0;
 
     private readonly IMattingService          _matting;
     private readonly IImageExtractionService  _extraction;
     private readonly AppSettingsService       _settings;
     private readonly ILogService              _log;
+    private readonly IStorageService          _storage;
 
     private CancellationTokenSource? _downloadCts;
 
@@ -31,8 +35,8 @@ public partial class MattingConfigViewModel : ObservableObject
     private bool _isDownloading;
     [ObservableProperty] private double _downloadProgress;       // 0..100
     [ObservableProperty] private string _downloadStatus = string.Empty;
-    [ObservableProperty] private bool   _u2NetExists;
-    [ObservableProperty] private string _u2NetStatus = string.Empty;
+    [ObservableProperty] private bool   _bgModelExists;
+    [ObservableProperty] private string _bgModelStatus = string.Empty;
 
     public bool CanStartDownload => !IsDownloading;
 
@@ -40,34 +44,41 @@ public partial class MattingConfigViewModel : ObservableObject
         IMattingService          matting,
         IImageExtractionService  extraction,
         AppSettingsService       settings,
-        ILogService              log)
+        ILogService              log,
+        IStorageService          storage)
     {
         _matting      = matting;
         _extraction   = extraction;
         _settings     = settings;
         _log          = log;
+        _storage      = storage;
         _modelPath    = settings.MattingModelPath;
         _inputFolder  = settings.MattingInputFolder;
         _isModelLoaded = matting.IsModelLoaded;
         _modelStatus  = matting.ModelStatus;
-        RefreshU2NetStatus();
+        RefreshBgModelStatus();
+
+        // When workspace changes, the pinned InputFolder is cleared externally.
+        // Re-read from settings so the UI reflects the cleared value.
+        storage.RootPathChanged += (_, _) =>
+            InputFolder = _settings.MattingInputFolder;
     }
 
-    private void RefreshU2NetStatus()
+    private void RefreshBgModelStatus()
     {
         var path = _settings.ModelPath;
         if (File.Exists(path))
         {
             var sizeMb = new FileInfo(path).Length / (1024d * 1024d);
-            U2NetExists = true;
-            U2NetStatus = _extraction.IsModelLoaded
+            BgModelExists = true;
+            BgModelStatus = _extraction.IsModelLoaded
                 ? $"✓ 已加载  ({sizeMb:F1} MB)"
                 : $"✓ 文件已就位 ({sizeMb:F1} MB)，但未加载";
         }
         else
         {
-            U2NetExists = false;
-            U2NetStatus = "✗ 未下载（抠图功能依赖此模型作为备用引擎）";
+            BgModelExists = false;
+            BgModelStatus = $"✗ 未下载（约 {BgModelSizeMbApprox:F0} MB，抠图功能依赖此模型）";
         }
     }
 
@@ -132,10 +143,10 @@ public partial class MattingConfigViewModel : ObservableObject
         ModelStatus = "✓ 配置已保存";
     }
 
-    // ── Download U-2-Net (~176 MB) ─────────────────────────────────────────
+    // ── Download RMBG-2.0 (~270 MB) ───────────────────────────────────────
 
     [RelayCommand]
-    private async Task DownloadU2NetAsync()
+    private async Task DownloadBgModelAsync()
     {
         if (IsDownloading) return;
 
@@ -156,11 +167,11 @@ public partial class MattingConfigViewModel : ObservableObject
 
         try
         {
-            using var http = new HttpClient { Timeout = TimeSpan.FromMinutes(15) };
+            using var http = new HttpClient { Timeout = TimeSpan.FromMinutes(30) };
             http.DefaultRequestHeaders.UserAgent.ParseAdd("ImageAvatar/1.0");
 
             using var response = await http.GetAsync(
-                U2NetDownloadUrl, HttpCompletionOption.ResponseHeadersRead, ct);
+                BgModelDownloadUrl, HttpCompletionOption.ResponseHeadersRead, ct);
             response.EnsureSuccessStatusCode();
 
             var totalBytes = response.Content.Headers.ContentLength ?? -1L;
@@ -202,12 +213,11 @@ public partial class MattingConfigViewModel : ObservableObject
 
             DownloadProgress = 100;
             DownloadStatus   = "✓ 下载完成，正在加载…";
-            _log.Log("抠图", $"U-2-Net 已下载至 {destPath}");
+            _log.Log("抠图", $"RMBG-2.0 已下载至 {destPath}");
 
-            // Auto-load so matting can run immediately
             await _extraction.LoadModelAsync(destPath);
             DownloadStatus = "✓ 下载并加载完成，可以开始抠图";
-            _log.Log("抠图", "U-2-Net 模型已加载");
+            _log.Log("抠图", "RMBG-2.0 模型已加载");
         }
         catch (OperationCanceledException)
         {
@@ -217,7 +227,7 @@ public partial class MattingConfigViewModel : ObservableObject
         catch (Exception ex)
         {
             DownloadStatus = $"✗ 下载失败: {ex.Message}";
-            _log.Log("抠图", $"U-2-Net 下载失败: {ex.Message}");
+            _log.Log("抠图", $"RMBG-2.0 下载失败: {ex.Message}");
             TryDeleteTemp(tempPath);
         }
         finally
@@ -225,7 +235,7 @@ public partial class MattingConfigViewModel : ObservableObject
             IsDownloading = false;
             _downloadCts?.Dispose();
             _downloadCts = null;
-            RefreshU2NetStatus();
+            RefreshBgModelStatus();
         }
     }
 

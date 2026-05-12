@@ -23,9 +23,9 @@ public sealed class MattingRunResult
     public string ToShortStatus() => Outcome switch
     {
         MattingRunOutcome.Completed when SuccessCount > 0 && FailureCount == 0 =>
-            $"● 抠图完成 ({SuccessCount} 张)",
+            $"● 重建完成 ({SuccessCount} 张)",
         MattingRunOutcome.Completed when SuccessCount > 0 =>
-            $"● 抠图完成 ({SuccessCount} 成功 / {FailureCount} 失败)",
+            $"● 重建完成 ({SuccessCount} 成功 / {FailureCount} 失败)",
         MattingRunOutcome.Completed =>
             $"● 全部失败 ({FailureCount} 张)",
         MattingRunOutcome.EmptyQueue  => "● 未产出：输入队列为空",

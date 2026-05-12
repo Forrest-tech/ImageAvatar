@@ -11,14 +11,19 @@ public class StorageService : IStorageService, IDisposable
     private string _rootPath = null!;
 
     public event EventHandler<FolderChangedEventArgs>? FolderChanged;
+    public event EventHandler? RootPathChanged;
 
     public string RootPath
     {
         get => _rootPath;
         set
         {
-            _rootPath = NormalizeWorkspaceRoot(value);
+            var normalized = NormalizeWorkspaceRoot(value);
+            var changed = !string.Equals(_rootPath, normalized, StringComparison.OrdinalIgnoreCase);
+            _rootPath = normalized;
             RebuildPaths();
+            if (changed)
+                RootPathChanged?.Invoke(this, EventArgs.Empty);
         }
     }
 

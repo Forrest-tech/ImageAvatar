@@ -13,7 +13,10 @@
       "PowerShell($dll = \"C:\\\\Users\\\\Forrest Lin\\\\source\\\\repos\\\\Forrest-tech\\\\ImageAvatar\\\\ImageAvatar\\\\bin\\\\Debug\\\\net8.0-windows\\\\Wpf.Ui.dll\"; Add-Type -Path $dll; [System.Enum]::GetNames\\([Wpf.Ui.Controls.SymbolRegular]\\) | Where-Object { $_ -match \"^\\(Home|Setting|Crop|Image|Cut|Layer|Document|Terminal|Code|Prompt|Apps|Braces|Scissors\\)\" } | Sort-Object | Select-Object -First 60)",
       "PowerShell(dotnet run *)",
       "PowerShell(\"\")",
-      "PowerShell(\"=== 31_��ͼ��� \\(3 most recent\\) ===\")"
+      "PowerShell(\"=== 31_��ͼ��� \\(3 most recent\\) ===\")",
+      "PowerShell(Join-Path *)",
+      "PowerShell(Get-ChildItem *)",
+      "PowerShell($env:PATH; where.exe git 2>$null)"
     ]
   }
 }

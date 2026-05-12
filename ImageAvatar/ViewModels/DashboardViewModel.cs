@@ -20,7 +20,12 @@ public partial class DashboardViewModel : ObservableObject
     private readonly AppSettingsService          _settings;
 
     // ── Workspace ─────────────────────────────────────────────────────────
-    [ObservableProperty] private string _rootPath;
+    private string _rootPath = string.Empty;
+    public string RootPath
+    {
+        get => _rootPath;
+        private set { _rootPath = value; OnPropertyChanged(); }
+    }
 
     // ── Service running states ─────────────────────────────────────────────
     [ObservableProperty] private bool   _isCropRunning;
@@ -74,45 +79,36 @@ public partial class DashboardViewModel : ObservableObject
         var picked = dialog.FolderName;
         _log.Log("工作区", $"用户选中: {picked}");
 
-        // Assign through StorageService first so normalization runs (e.g. user
-        // picked 00_提图队列 directly → use parent), then read the canonical
-        // value back for display & persistence.
-        _storage.RootPath       = picked;
-        var canonical           = _storage.RootPath;
-        var oldRootPath         = RootPath;
-        _log.Log("工作区", $"规范化路径: {canonical}（旧值: {oldRootPath}）");
-
-        // Force the WPF binding to refresh. Setting to a known-different value
-        // first guarantees the [ObservableProperty] setter fires PropertyChanged
-        // even if the canonical value happens to equal the old one (re-picking
-        // the same folder, or normalisation collapsing back to the same parent).
-        // Wrap in Dispatcher.Invoke so the bound TextBlock sees both changes
-        // even if this command happened to be invoked off the UI thread.
-        var ui = Application.Current?.Dispatcher;
-        if (ui != null && !ui.CheckAccess())
-            ui.Invoke(() => { RootPath = string.Empty; RootPath = canonical; });
-        else
-        {
-            RootPath = string.Empty;
-            RootPath = canonical;
-        }
-
-        _settings.WorkspaceRoot = canonical;
-
-        // If the user ever pinned an absolute MattingInputFolder, it would
-        // override the new workspace and silently keep matting on the old path.
-        // Clearing it makes the workspace change actually take effect.
+        // Clear any pinned MattingInputFolder BEFORE updating the storage root so
+        // that the RootPathChanged event (fired by the setter below) sees the
+        // already-cleared setting and MattingConfigViewModel refreshes correctly.
         if (!string.IsNullOrWhiteSpace(_settings.MattingInputFolder))
         {
             _log.Log("工作区", $"清除旧的抠图输入路径覆盖: {_settings.MattingInputFolder}");
             _settings.MattingInputFolder = string.Empty;
         }
 
+        // Assign through StorageService so normalization runs (e.g. user picked
+        // 00_提图队列 directly → use parent), then read the canonical value back.
+        _storage.RootPath = picked;
+        var canonical     = _storage.RootPath;
+        _log.Log("工作区", $"规范化路径: {canonical}（旧值: {RootPath}）");
+
+        RootPath = canonical;
+
+        _settings.WorkspaceRoot = canonical;
         _settings.Save();
         _storage.RefreshAll();
 
         if (!string.Equals(picked, canonical, StringComparison.OrdinalIgnoreCase))
+        {
             _log.Log("工作区", $"已识别为流水线子目录，工作区切换至父目录 {canonical}");
+            MessageBox.Show(
+                $"检测到您选择的文件夹是流水线子目录，工作区已自动调整为其父目录：\n\n{canonical}",
+                "工作区路径已调整",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+        }
         else
             _log.Log("工作区", $"工作区已切换至 {canonical}");
     }
@@ -256,12 +252,13 @@ public partial class DashboardViewModel : ObservableObject
 
         var sw = Stopwatch.StartNew();
         IsMattingRunning  = true;
-        MattingStatusText = "● 运行中";
+        MattingStatusText = "● 重建中";
         _log.Log("抠图", "服务已启动");
 
         _ = Task.Run(async () =>
         {
-            bool cancelled = false;
+            bool    cancelled = false;
+            string? errorMsg  = null;
             Models.MattingRunResult? result = null;
             try
             {
@@ -271,6 +268,7 @@ public partial class DashboardViewModel : ObservableObject
             catch (Exception ex)
             {
                 cancelled = true;
+                errorMsg  = ex.Message;
                 _log.Log("抠图", $"异常: {ex.Message}");
             }
             finally
@@ -281,7 +279,9 @@ public partial class DashboardViewModel : ObservableObject
                 {
                     IsMattingRunning  = false;
                     MattingStatusText = cancelled
-                        ? "● 未启动"
+                        ? (errorMsg is not null
+                            ? $"✗ {(errorMsg.Length > 60 ? errorMsg[..60] + "…" : errorMsg)}"
+                            : "● 已停止")
                         : (result?.ToShortStatus() ?? "● 未产出") + $"（耗时 {elapsed}）";
                 });
                 _storage.RefreshAll();

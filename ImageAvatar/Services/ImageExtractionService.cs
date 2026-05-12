@@ -9,23 +9,29 @@ using System.IO;
 namespace ImageAvatar.Services;
 
 /// <summary>
-/// U-2-Net background removal service.
-/// Model: u2net.onnx from https://github.com/danielgatis/rembg
-/// Input  : [1, 3, 320, 320] float32, RGB, ImageNet-normalized
-/// Output : [1, 1, 320, 320] float32, sigmoid mask (0–1)
+/// Generic AI background-removal service.
+/// Supports any salient-object-detection ONNX model that follows the
+/// standard [1,3,H,W] float32 input / [1,1,H,W] float32 output convention
+/// with ImageNet normalisation (mean 0.485/0.456/0.406, std 0.229/0.224/0.225).
+///
+/// Tested with:
+///   • U-2-Net   320×320  ~176 MB
+///   • RMBG-2.0 1024×1024 ~270 MB  ← recommended (briaai/RMBG-2.0 on HuggingFace)
+///   • IS-Net    1024×1024 ~176 MB
+///
+/// Input/output dimensions are auto-detected from ONNX metadata at load time.
 /// </summary>
 public sealed class ImageExtractionService : IImageExtractionService, IDisposable
 {
-    // ImageNet per-channel mean / std (RGB order) used by rembg / U-2-Net
     private static readonly float[] Mean = [0.485f, 0.456f, 0.406f];
     private static readonly float[] Std  = [0.229f, 0.224f, 0.225f];
-
-    private const int InputSize = 320;
 
     private static readonly string[] SupportedExts =
         [".png", ".jpg", ".jpeg", ".bmp", ".tiff", ".tif", ".webp"];
 
     private InferenceSession? _session;
+    private int _inputH = 1024;
+    private int _inputW = 1024;
 
     public bool IsModelLoaded => _session is not null;
     public event EventHandler<ExtractionResult>? ExtractionCompleted;
@@ -46,6 +52,13 @@ public sealed class ImageExtractionService : IImageExtractionService, IDisposabl
         };
 
         _session = new InferenceSession(modelPath, opts);
+
+        // Auto-detect spatial dimensions from the first input tensor.
+        // Expected shape: [1, 3, H, W] — fall back to 1024 if dynamic (-1).
+        var dims = _session.InputMetadata.Values.First().Dimensions;
+        _inputH = dims.Length >= 4 && dims[2] > 0 ? dims[2] : 1024;
+        _inputW = dims.Length >= 4 && dims[3] > 0 ? dims[3] : 1024;
+
         return Task.CompletedTask;
     }
 
@@ -79,7 +92,7 @@ public sealed class ImageExtractionService : IImageExtractionService, IDisposabl
         var sw = Stopwatch.StartNew();
         try
         {
-            // 1 – Load ────────────────────────────────────────────────────
+            // 1 ─ Load ────────────────────────────────────────────────────
             p?.Report(0.05);
             using var original = Cv2.ImRead(sourcePath, ImreadModes.Color);
             if (original.Empty())
@@ -88,83 +101,88 @@ public sealed class ImageExtractionService : IImageExtractionService, IDisposabl
             int origH = original.Rows, origW = original.Cols;
             ct.ThrowIfCancellationRequested();
 
-            // 2 – Resize to 320×320 ───────────────────────────────────────
+            // 2 ─ Resize to model input size ─────────────────────────────
             p?.Report(0.10);
-            using var resized320 = new Mat();
-            Cv2.Resize(original, resized320, new Size(InputSize, InputSize));
+            using var resized = new Mat();
+            Cv2.Resize(original, resized, new Size(_inputW, _inputH));
 
-            // 3 – Build normalized CHW float tensor ───────────────────────
+            // 3 ─ Build normalized CHW float tensor ──────────────────────
             p?.Report(0.18);
-            var tensor = BuildInputTensor(resized320);
+            var tensor = BuildInputTensor(resized, _inputH, _inputW);
             ct.ThrowIfCancellationRequested();
 
-            // 4 – ONNX inference ──────────────────────────────────────────
+            // 4 ─ ONNX inference ──────────────────────────────────────────
             p?.Report(0.25);
-            var inputName = _session!.InputMetadata.Keys.First();
+            var inputName  = _session!.InputMetadata.Keys.First();
             var namedInput = new[] { NamedOnnxValue.CreateFromTensor(inputName, tensor) };
 
-            using var outputs  = _session.Run(namedInput);
-            var rawMask        = outputs.First().AsTensor<float>();
+            using var outputs = _session.Run(namedInput);
+            var rawMask       = outputs.First().AsTensor<float>();
             ct.ThrowIfCancellationRequested();
 
-            // 5 – Min-max normalize → float Mat 320×320 ───────────────────
-            p?.Report(0.50);
-            using var mask320f = BuildNormalizedMask(rawMask);
+            // 5 ─ Detect actual output dimensions ────────────────────────
+            p?.Report(0.45);
+            var outShape = rawMask.Dimensions.ToArray();
+            int outH = outShape.Length >= 4 && outShape[2] > 0 ? outShape[2] : _inputH;
+            int outW = outShape.Length >= 4 && outShape[3] > 0 ? outShape[3] : _inputW;
 
-            // 6 – Upscale to original resolution (bicubic) ────────────────
-            p?.Report(0.60);
+            // 6 ─ Min-max normalise → float Mat ──────────────────────────
+            p?.Report(0.55);
+            using var maskF = BuildNormalizedMask(rawMask, outH, outW);
+
+            // 7 ─ Upscale to original resolution (bicubic) ───────────────
+            p?.Report(0.62);
             using var maskFullF = new Mat();
-            Cv2.Resize(mask320f, maskFullF,
+            Cv2.Resize(maskF, maskFullF,
                 new Size(origW, origH), 0, 0, InterpolationFlags.Cubic);
 
-            // 7 – Slight Gaussian blur for edge anti-aliasing ─────────────
-            p?.Report(0.68);
+            // 8 ─ Slight Gaussian blur for edge anti-aliasing ────────────
+            p?.Report(0.70);
             using var maskBlurred = new Mat();
             Cv2.GaussianBlur(maskFullF, maskBlurred, new Size(3, 3), sigmaX: 1.0);
 
-            // 8 – Convert mask to 8-bit ────────────────────────────────────
+            // 9 ─ Convert to 8-bit alpha ──────────────────────────────────
             using var mask8 = new Mat();
             maskBlurred.ConvertTo(mask8, MatType.CV_8UC1, 255.0);
 
-            // 9 – Assemble 32-bit BGRA (replace alpha channel with mask) ──
-            p?.Report(0.75);
+            // 10 ─ Assemble 32-bit BGRA ──────────────────────────────────
+            p?.Report(0.78);
             using var bgra = new Mat();
             Cv2.CvtColor(original, bgra, ColorConversionCodes.BGR2BGRA);
 
             Mat[] channels = Cv2.Split(bgra);
             try
             {
-                mask8.CopyTo(channels[3]);       // swap in our alpha channel
+                mask8.CopyTo(channels[3]);
                 Cv2.Merge(channels, bgra);
             }
             finally { foreach (var ch in channels) ch.Dispose(); }
 
             ct.ThrowIfCancellationRequested();
 
-            // 10 – Auto-crop: bounding box of alpha > 0 pixels ────────────
-            p?.Report(0.85);
+            // 11 ─ Auto-crop to alpha bounding box ───────────────────────
+            p?.Report(0.88);
             using var nonZero = new Mat();
             Cv2.FindNonZero(mask8, nonZero);
 
             Mat output;
             if (nonZero.Rows > 0)
             {
-                var cropRect = Cv2.BoundingRect(nonZero);
-                // Ensure the rect stays within image bounds
-                cropRect = new Rect(
-                    Math.Max(0, cropRect.X),
-                    Math.Max(0, cropRect.Y),
-                    Math.Min(cropRect.Width,  origW - cropRect.X),
-                    Math.Min(cropRect.Height, origH - cropRect.Y));
-                output = new Mat(bgra, cropRect).Clone();
+                var r = Cv2.BoundingRect(nonZero);
+                r = new Rect(
+                    Math.Max(0, r.X),
+                    Math.Max(0, r.Y),
+                    Math.Min(r.Width,  origW - r.X),
+                    Math.Min(r.Height, origH - r.Y));
+                output = new Mat(bgra, r).Clone();
             }
             else
             {
                 output = bgra.Clone();
             }
 
-            // 11 – Save as 32-bit transparent PNG ─────────────────────────
-            p?.Report(0.93);
+            // 12 ─ Save as 32-bit transparent PNG ─────────────────────────
+            p?.Report(0.95);
             Directory.CreateDirectory(targetFolder);
             var destPath = Path.Combine(targetFolder,
                 Path.GetFileNameWithoutExtension(sourcePath) + ".png");
@@ -187,20 +205,20 @@ public sealed class ImageExtractionService : IImageExtractionService, IDisposabl
         {
             return new ExtractionResult
             {
-                SourcePath    = sourcePath,
-                Success       = false,
-                ErrorMessage  = "Cancelled",
-                Elapsed       = sw.Elapsed
+                SourcePath   = sourcePath,
+                Success      = false,
+                ErrorMessage = "Cancelled",
+                Elapsed      = sw.Elapsed
             };
         }
         catch (Exception ex)
         {
             return new ExtractionResult
             {
-                SourcePath    = sourcePath,
-                Success       = false,
-                ErrorMessage  = ex.Message,
-                Elapsed       = sw.Elapsed
+                SourcePath   = sourcePath,
+                Success      = false,
+                ErrorMessage = ex.Message,
+                Elapsed      = sw.Elapsed
             };
         }
     }
@@ -208,18 +226,17 @@ public sealed class ImageExtractionService : IImageExtractionService, IDisposabl
     // ── Helpers ────────────────────────────────────────────────────────────
 
     /// <summary>
-    /// Converts a BGR 320×320 8-bit Mat into a [1,3,320,320] float tensor,
-    /// applying ImageNet per-channel normalization (RGB order).
+    /// BGR 8-bit Mat → [1, 3, H, W] float tensor with ImageNet normalisation (RGB order).
     /// </summary>
-    private static DenseTensor<float> BuildInputTensor(Mat bgrMat)
+    private static DenseTensor<float> BuildInputTensor(Mat bgrMat, int h, int w)
     {
-        var tensor = new DenseTensor<float>([1, 3, InputSize, InputSize]);
+        var tensor = new DenseTensor<float>([1, 3, h, w]);
 
-        for (int y = 0; y < InputSize; y++)
+        for (int y = 0; y < h; y++)
         {
-            for (int x = 0; x < InputSize; x++)
+            for (int x = 0; x < w; x++)
             {
-                var px = bgrMat.At<Vec3b>(y, x); // OpenCV: B=Item0, G=Item1, R=Item2
+                var px = bgrMat.At<Vec3b>(y, x); // B=Item0, G=Item1, R=Item2
                 tensor[0, 0, y, x] = (px.Item2 / 255f - Mean[0]) / Std[0]; // R
                 tensor[0, 1, y, x] = (px.Item1 / 255f - Mean[1]) / Std[1]; // G
                 tensor[0, 2, y, x] = (px.Item0 / 255f - Mean[2]) / Std[2]; // B
@@ -230,14 +247,14 @@ public sealed class ImageExtractionService : IImageExtractionService, IDisposabl
     }
 
     /// <summary>
-    /// Min-max normalizes the raw sigmoid output into a [0,1] float Mat.
-    /// Matches rembg post-processing: (pred - min) / (max - min).
+    /// Min-max normalises the raw model output into a [0,1] float Mat of size h×w.
+    /// Expected tensor layout: [1, 1, H, W].
     /// </summary>
-    private static Mat BuildNormalizedMask(Tensor<float> rawOutput)
+    private static Mat BuildNormalizedMask(Tensor<float> rawOutput, int h, int w)
     {
         float min = float.MaxValue, max = float.MinValue;
-        for (int y = 0; y < InputSize; y++)
-            for (int x = 0; x < InputSize; x++)
+        for (int y = 0; y < h; y++)
+            for (int x = 0; x < w; x++)
             {
                 float v = rawOutput[0, 0, y, x];
                 if (v < min) min = v;
@@ -245,13 +262,13 @@ public sealed class ImageExtractionService : IImageExtractionService, IDisposabl
             }
 
         float range = (max - min) < 1e-7f ? 1f : max - min;
-        var data    = new float[InputSize * InputSize];
+        var data    = new float[h * w];
 
-        for (int y = 0; y < InputSize; y++)
-            for (int x = 0; x < InputSize; x++)
-                data[y * InputSize + x] = (rawOutput[0, 0, y, x] - min) / range;
+        for (int y = 0; y < h; y++)
+            for (int x = 0; x < w; x++)
+                data[y * w + x] = (rawOutput[0, 0, y, x] - min) / range;
 
-        var mask = new Mat(InputSize, InputSize, MatType.CV_32FC1);
+        var mask = new Mat(h, w, MatType.CV_32FC1);
         mask.SetArray(data);
         return mask;
     }

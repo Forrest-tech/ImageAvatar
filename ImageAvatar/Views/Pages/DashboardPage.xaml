@@ -221,7 +221,7 @@
                                     <Style TargetType="Ellipse" BasedOn="{StaticResource RunningDotStyle}">
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding IsMattingRunning}" Value="True">
-                                                <Setter Property="Fill" Value="#4CAF50" />
+                                                <Setter Property="Fill" Value="#FFC107" />
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
@@ -238,7 +238,7 @@
                                     <Setter Property="Foreground" Value="{DynamicResource TextFillColorSecondaryBrush}" />
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding IsMattingRunning}" Value="True">
-                                            <Setter Property="Foreground" Value="#4CAF50" />
+                                            <Setter Property="Foreground" Value="#FFC107" />
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>

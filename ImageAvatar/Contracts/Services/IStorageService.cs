@@ -10,4 +10,5 @@ public interface IStorageService
     void StopWatching();
     void RefreshAll();
     event EventHandler<FolderChangedEventArgs> FolderChanged;
+    event EventHandler? RootPathChanged;
 }
